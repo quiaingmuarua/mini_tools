@@ -167,7 +167,7 @@ jobs:
           from minic.runtime import emit_executable, run_executable
           from minit_tls.network.mini_ecdhe import gen_keypair, ecdhe_shared
           from mini_jvm.runtime import VM, ClassDef, Method
-          from mini_linker.mini_read_elf import parse_elf_header
+          from mini_linker.mini_read_elf import ELFFile
           
           print('✅ All imports successful')
           
