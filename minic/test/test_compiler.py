@@ -5,7 +5,9 @@ Test suite for MiniC compiler
 
 import os
 import tempfile
+
 import pytest
+
 from minic.driver import build_ir_from_source
 from minic.runtime import emit_assembly, emit_executable, run_executable
 
@@ -21,7 +23,7 @@ def test_simple_function():
         return add(2, 3);
     }
     """
-    
+
     # Should not raise an exception
     llvm_ir = build_ir_from_source(src, 0)
     assert llvm_ir is not None
@@ -41,7 +43,7 @@ def test_control_flow():
         }
     }
     """
-    
+
     llvm_ir = build_ir_from_source(src, 0)
     assert llvm_ir is not None
     assert "br i1" in llvm_ir  # Conditional branch
@@ -58,7 +60,7 @@ def test_while_loop():
         return x;
     }
     """
-    
+
     llvm_ir = build_ir_from_source(src, 0)
     assert llvm_ir is not None
     assert "loop.cond" in llvm_ir
@@ -78,7 +80,7 @@ def test_arithmetic_operations():
         return sum + diff + prod + quot;
     }
     """
-    
+
     llvm_ir = build_ir_from_source(src, 0)
     assert llvm_ir is not None
     assert "add i32" in llvm_ir
@@ -102,7 +104,7 @@ def test_comparison_operations():
         return 0;
     }
     """
-    
+
     llvm_ir = build_ir_from_source(src, 0)
     assert llvm_ir is not None
     assert "icmp eq" in llvm_ir
@@ -125,7 +127,7 @@ def test_nested_calls():
         return square(4);
     }
     """
-    
+
     llvm_ir = build_ir_from_source(src, 0)
     assert llvm_ir is not None
     assert 'call i32 @"multiply"' in llvm_ir
@@ -136,19 +138,19 @@ def test_nested_calls():
 def test_executable_generation():
     """Test generating and running an executable (slow test)"""
     import platform
-    
+
     # Skip this test on Windows or if clang is not available
     if platform.system() == "Windows":
         pytest.skip("Executable generation not supported on Windows in CI")
-    
+
     src = """
     int main() {
         return 42;
     }
     """
-    
+
     llvm_ir = build_ir_from_source(src, 0)
-    
+
     with tempfile.NamedTemporaryFile(delete=False) as tmp:
         try:
             exe_path = emit_executable(llvm_ir, tmp.name)
@@ -174,15 +176,15 @@ def test_optimization_levels():
         return x;
     }
     """
-    
+
     # Test O0 (no optimization)
     llvm_ir_o0 = build_ir_from_source(src, 0)
     assert llvm_ir_o0 is not None
-    
+
     # Test O2 (optimization)
     llvm_ir_o2 = build_ir_from_source(src, 2)
     assert llvm_ir_o2 is not None
-    
+
     # O2 should generally be shorter due to optimizations
     # (though this is not guaranteed for all cases)
 
@@ -197,12 +199,12 @@ def test_variable_declarations():
         return a + b;
     }
     """
-    
+
     llvm_ir = build_ir_from_source(src, 0)
     assert llvm_ir is not None
     assert "alloca i32" in llvm_ir  # Variable allocations
-    assert "store i32" in llvm_ir   # Variable stores
-    assert "load i32" in llvm_ir    # Variable loads
+    assert "store i32" in llvm_ir  # Variable stores
+    assert "load i32" in llvm_ir  # Variable loads
 
 
 def test_unary_minus():
@@ -212,7 +214,7 @@ def test_unary_minus():
         return -5;
     }
     """
-    
+
     llvm_ir = build_ir_from_source(src, 0)
     assert llvm_ir is not None
     assert "sub i32 0" in llvm_ir  # Unary minus implemented as 0 - x

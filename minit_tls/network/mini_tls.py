@@ -17,7 +17,9 @@ def create_client_hello(hostname):
     random_bytes = struct.pack("!I", gmt_unix_time) + bytes([0x42] * 28)  # 简化随机数
 
     session_id = b"\x00"  # 空会话 ID
-    cipher_suites = b"\xc0\x2f\x00\x35"  # 支持 ECDHE-RSA-AES128-GCM-SHA256, TLS_RSA_WITH_AES128_CBC_SHA
+    cipher_suites = (
+        b"\xc0\x2f\x00\x35"  # 支持 ECDHE-RSA-AES128-GCM-SHA256, TLS_RSA_WITH_AES128_CBC_SHA
+    )
     compression_methods = b"\x01\x00"  # null compression
 
     # 扩展：SNI（Server Name Indication）
@@ -33,9 +35,7 @@ def create_client_hello(hostname):
 
     # 其他扩展（可选）：支持的群组（ECDHE 曲线）
     ec_points_format_ext = b"\x00\x0b\x00\x02\x01\x00"  # ec_point_formats: uncompressed
-    supported_groups_ext = (
-        b"\x00\x0a\x00\x0a\x00\x08\x00\x1d\x00\x17\x00\x18"  # secp256r1, etc.
-    )
+    supported_groups_ext = b"\x00\x0a\x00\x0a\x00\x08\x00\x1d\x00\x17\x00\x18"  # secp256r1, etc.
 
     extensions = sni_ext + ec_points_format_ext + supported_groups_ext
 
@@ -52,9 +52,7 @@ def create_client_hello(hostname):
     )
 
     handshake_length = len(client_hello_body)
-    handshake_header = struct.pack("!I", (handshake_type[0] << 24) + handshake_length)[
-        1:
-    ]
+    handshake_header = struct.pack("!I", (handshake_type[0] << 24) + handshake_length)[1:]
 
     # 完整的握手消息
     message = handshake_header + client_hello_body

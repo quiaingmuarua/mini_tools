@@ -121,9 +121,7 @@ class VM:
             cls: ClassDef = arg[0]
             static_method_name: str = arg[1]
             n_args: int = arg[2]
-            target = cls.resolve_static(
-                static_method_name
-            )  # 静态解析（不看接收者类型）
+            target = cls.resolve_static(static_method_name)  # 静态解析（不看接收者类型）
             # 从操作数栈弹 n_args（注意参数顺序）
             args = [f.stack.pop() for _ in range(n_args)][::-1]
             self.push_frame(target, args)

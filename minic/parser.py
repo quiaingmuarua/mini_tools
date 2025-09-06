@@ -122,9 +122,7 @@ class Parser:
             self._eat(Kind.SEMI)
             return Assign(name, expr)
 
-        raise ParseError(
-            f"unexpected token {self.cur.kind.name} at {self.cur.line}:{self.cur.col}"
-        )
+        raise ParseError(f"unexpected token {self.cur.kind.name} at {self.cur.line}:{self.cur.col}")
 
     # -- expressions (precedence climbing via levels) --
     def parse_expr(self):  # lowest

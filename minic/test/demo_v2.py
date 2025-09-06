@@ -58,9 +58,7 @@ class Lexer:
             if ch.isalpha() or ch == "_":
                 ident = self._consume_while(lambda c: c.isalnum() or c == "_")
                 if ident in KEYWORDS:
-                    tks.append(
-                        Token(ident.upper())
-                    )  # 'INT','RETURN','IF','ELSE','WHILE'
+                    tks.append(Token(ident.upper()))  # 'INT','RETURN','IF','ELSE','WHILE'
                 else:
                     tks.append(Token("IDENT", ident))
                 continue
@@ -599,9 +597,7 @@ break / continue
 """
 
 if __name__ == "__main__":
-    src = (
-        DEMO if len(sys.argv) == 1 else open(sys.argv[1], "r", encoding="utf-8").read()
-    )
+    src = DEMO if len(sys.argv) == 1 else open(sys.argv[1], "r", encoding="utf-8").read()
     rv, ir_text = compile_and_run(src)
     print("------ return value:", rv)
     # Uncomment to inspect IR:

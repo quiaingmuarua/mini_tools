@@ -2,13 +2,7 @@ import os
 
 from minic.codegen import *
 from minic.codegen import Block
-from minic.runtime import (
-    emit_assembly,
-    emit_executable,
-    jit_run,
-    optimize_ir,
-    run_executable,
-)
+from minic.runtime import emit_assembly, emit_executable, jit_run, optimize_ir, run_executable
 
 
 def if_statement_expr():
@@ -58,9 +52,7 @@ def while_statement_expr():
 def function_statement_expr():
     return Program(
         [
-            Function(
-                "add", ["a", "b"], Block([Return(BinaryOp("+", Var("a"), Var("b")))])
-            ),
+            Function("add", ["a", "b"], Block([Return(BinaryOp("+", Var("a"), Var("b")))])),
             Function(
                 "main",
                 [],

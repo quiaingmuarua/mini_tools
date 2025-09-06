@@ -107,9 +107,11 @@ markers = [
 ]
 
 [tool.black]
-line-length = 88
-target-version = ['py38']
+line-length = 100  # 更宽松的行长度
+target-version = ['py39']
 include = '\.pyi?$'
+# 保留字符串引号风格
+skip-string-normalization = true
 extend-exclude = '''
 /(
   \.git
@@ -117,13 +119,14 @@ extend-exclude = '''
   | \.pytest_cache
   | \.venv
   | __pycache__
+  | minic/test/out
 )/
 '''
 
 [tool.isort]
 profile = "black"
 multi_line_output = 3
-line_length = 88
+line_length = 100  # 匹配black的行长度
 known_first_party = [
     "minic",
     "mini_jvm",

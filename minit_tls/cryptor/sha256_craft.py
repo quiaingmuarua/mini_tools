@@ -96,25 +96,15 @@ class SHA256Craft:
                 ^ (W[i - 15] >> 3)
             )
             s1 = (
-                self.right_rotate(W[i - 2], 17)
-                ^ self.right_rotate(W[i - 2], 19)
-                ^ (W[i - 2] >> 10)
+                self.right_rotate(W[i - 2], 17) ^ self.right_rotate(W[i - 2], 19) ^ (W[i - 2] >> 10)
             )
             W.append((W[i - 16] + s0 + W[i - 7] + s1) & 0xFFFFFFFF)
         a, b, c, d, e, f, g, h = self.H
         for i in range(64):
-            S1 = (
-                self.right_rotate(e, 6)
-                ^ self.right_rotate(e, 11)
-                ^ self.right_rotate(e, 25)
-            )
+            S1 = self.right_rotate(e, 6) ^ self.right_rotate(e, 11) ^ self.right_rotate(e, 25)
             ch = (e & f) ^ (~e & g)
             temp1 = (h + S1 + ch + self.K[i] + W[i]) & 0xFFFFFFFF
-            S0 = (
-                self.right_rotate(a, 2)
-                ^ self.right_rotate(a, 13)
-                ^ self.right_rotate(a, 22)
-            )
+            S0 = self.right_rotate(a, 2) ^ self.right_rotate(a, 13) ^ self.right_rotate(a, 22)
             maj = (a & b) ^ (a & c) ^ (b & c)
             temp2 = (S0 + maj) & 0xFFFFFFFF
             h = g
@@ -126,9 +116,7 @@ class SHA256Craft:
             b = a
             a = (temp1 + temp2) & 0xFFFFFFFF
 
-        self.H = [
-            (x + y) & 0xFFFFFFFF for x, y in zip(self.H, [a, b, c, d, e, f, g, h])
-        ]
+        self.H = [(x + y) & 0xFFFFFFFF for x, y in zip(self.H, [a, b, c, d, e, f, g, h])]
 
     def output(self):
         a, b, c, d, e, f, g, h = self.H

@@ -303,9 +303,7 @@ def ecdhe_shared(my_sk, peer_pk):
 # ==================== 密钥派生函数 HKDF ====================
 
 
-def hkdf_sha256(
-    ikm: bytes, salt: bytes = b"", info: bytes = b"", length: int = 32
-) -> bytes:
+def hkdf_sha256(ikm: bytes, salt: bytes = b"", info: bytes = b"", length: int = 32) -> bytes:
     """
     HMAC-based Key Derivation Function (HKDF) - RFC 5869
 

@@ -249,9 +249,7 @@ class ELFFile:
             self.shstrtab = self.data[sh["sh_offset"] : sh["sh_offset"] + sh["sh_size"]]
         for idx, sh in enumerate(self.sh):
             if sh["sh_type"] == 3:  # STRTAB
-                self.strtabs[idx] = self.data[
-                    sh["sh_offset"] : sh["sh_offset"] + sh["sh_size"]
-                ]
+                self.strtabs[idx] = self.data[sh["sh_offset"] : sh["sh_offset"] + sh["sh_size"]]
 
     def section_name(self, idx: int) -> str:
         if not self.sh:
@@ -273,9 +271,7 @@ class ELFFile:
         print(f"  Data:                              {data}")
         print(f"  Version:                           {self.ei_version}")
         print(f"  OS/ABI:                            {self.ei_osabi}")
-        print(
-            f"  Type:                              {E_TYPE.get(self.e_type, self.e_type)}"
-        )
+        print(f"  Type:                              {E_TYPE.get(self.e_type, self.e_type)}")
         print(
             f"  Machine:                           {E_MACHINE.get(self.e_machine, self.e_machine)}"
         )
@@ -337,12 +333,12 @@ class ELFFile:
                 ent = tab_bytes[off : off + entsize]
                 off += entsize
                 if self.ei_class == ELFCLASS32:
-                    st_name, st_value, st_size, st_info, st_other, st_shndx = (
-                        struct.unpack(self.end + "IIIBBH", ent)
+                    st_name, st_value, st_size, st_info, st_other, st_shndx = struct.unpack(
+                        self.end + "IIIBBH", ent
                     )
                 else:
-                    st_name, st_info, st_other, st_shndx, st_value, st_size = (
-                        struct.unpack(self.end + "IBBHQQ", ent)
+                    st_name, st_info, st_other, st_shndx, st_value, st_size = struct.unpack(
+                        self.end + "IBBHQQ", ent
                     )
                 bind = ST_BIND.get(st_info >> 4, str(st_info >> 4))
                 typ = ST_TYPE.get(st_info & 0xF, str(st_info & 0xF))
@@ -366,9 +362,7 @@ class ELFFile:
             print(f"Symbol table '{tabname}': {len(syms)} entries")
             print("   Num:    Value             Size Type    Bind   Ndx Name")
             for i, s in enumerate(syms):
-                ndx = (
-                    f"{s['shndx']}" if isinstance(s["shndx"], int) else str(s["shndx"])
-                )
+                ndx = f"{s['shndx']}" if isinstance(s["shndx"], int) else str(s["shndx"])
                 print(
                     f"  {i:5}: {s['value']:016x} {s['size']:5} {s['type']:<7} {s['bind']:<6} {ndx:>3} {s['name']}"
                 )

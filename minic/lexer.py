@@ -103,9 +103,7 @@ class Lexer:
             if ch == "/" and self._peek(1) == "*":
                 self._adv()
                 self._adv()
-                while not self._eof() and not (
-                    self._peek() == "*" and self._peek(1) == "/"
-                ):
+                while not self._eof() and not (self._peek() == "*" and self._peek(1) == "/"):
                     self._adv()
                 if not self._eof():
                     self._adv()
