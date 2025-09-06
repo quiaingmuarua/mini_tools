@@ -1,0 +1,29 @@
+# Core dependencies for mini-tools project
+
+# Required for MiniC compiler (LLVM backend)
+llvmlite>=0.40.0
+
+# Development and testing dependencies  
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# Code formatting and linting
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0
+
+# Security scanning
+bandit>=1.7.0
+safety>=2.0.0
+
+# Pre-commit hooks (optional)
+pre-commit>=3.0.0
+
+# Note: This project uses Python's standard library for most functionality
+# Additional dependencies for specific tools:
+# - MiniC: Uses llvmlite for LLVM IR generation
+# - Mini JVM: Pure Python implementation 
+# - Mini JSVMP: JavaScript (Node.js environment)
+# - MiniTLS: Pure Python cryptography implementation
+# - Mini Linker: Pure Python ELF parsing

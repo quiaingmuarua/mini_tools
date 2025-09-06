@@ -1,0 +1,19 @@
+# Development dependencies for mini-tools project
+# Install with: pip install -r requirements-dev.txt
+
+# Include base requirements
+-r requirements.txt
+
+# Additional development tools
+pre-commit>=3.0.0
+
+# Type checking stubs (if needed)
+types-setuptools
+
+# Documentation (optional)
+sphinx>=5.0.0
+sphinx-rtd-theme>=1.0.0
+
+# Jupyter notebook support (for examples)
+jupyter>=1.0.0
+notebook>=6.0.0
