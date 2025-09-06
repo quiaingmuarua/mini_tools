@@ -5,7 +5,7 @@ machines, cryptography, and systems programming.
 
 [![CI](https://github.com/your-username/mini-tools/workflows/CI/badge.svg)](https://github.com/your-username/mini-tools/actions)
 [![codecov](https://codecov.io/gh/your-username/mini-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/your-username/mini-tools)
-[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## 🎯 Purpose
@@ -304,8 +304,8 @@ Multi-component CI/CD pipeline with GitHub Actions:
 
 ### Testing Matrix
 
-- **Python versions**: 3.8, 3.9, 3.10, 3.11, 3.12
-- **Operating systems**: Ubuntu, macOS, Windows
+- **Python versions**: 3.9, 3.10, 3.11, 3.12
+- **Operating systems**: Ubuntu, macOS
 - **LLVM dependencies**: llvmlite compatibility testing
 - **Node.js testing**: JavaScript VM validation
 
