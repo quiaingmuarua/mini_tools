@@ -225,7 +225,9 @@ def scalar_mult(k, P):
 
 # ==================== 密钥生成与 ECDHE ====================
 
-import secrets, hmac, hashlib
+import hashlib
+import hmac
+import secrets
 
 
 def gen_keypair():

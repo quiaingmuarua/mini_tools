@@ -7,9 +7,9 @@ name = "mini-tools"
 version = "0.1.0"
 description = "A comprehensive collection of educational programming tools: compilers, VMs, cryptography, and systems programming"
 readme = "README.md"
-license = {text = "MIT"}
+license = { text = "MIT" }
 authors = [
-    {name = "GeekRun", email = "your-email@example.com"},
+    { name = "GeekRun", email = "your-email@example.com" },
 ]
 classifiers = [
     "Development Status :: 3 - Alpha",
@@ -30,13 +30,13 @@ classifiers = [
     "Topic :: Education",
 ]
 keywords = [
-    "compiler", "llvm", "virtual-machine", "jvm", "javascript", 
+    "compiler", "llvm", "virtual-machine", "jvm", "javascript",
     "cryptography", "tls", "ecdhe", "encryption", "elf", "binary-analysis",
     "educational", "mini-tools"
 ]
 requires-python = ">=3.8"
 dependencies = [
-    "llvmlite>=0.40.0",  # Required for MiniC LLVM backend
+    "llvmlite>=0.40.0", # Required for MiniC LLVM backend
 ]
 
 [project.optional-dependencies]
@@ -53,7 +53,7 @@ dev = [
 ]
 
 compiler = [
-    "llvmlite>=0.40.0",  # For MiniC compiler
+    "llvmlite>=0.40.0", # For MiniC compiler
 ]
 
 crypto = [
@@ -73,9 +73,9 @@ Documentation = "https://github.com/your-username/mini-tools#readme"
 [tool.setuptools.packages.find]
 where = ["."]
 include = [
-    "minic*", 
-    "mini_jvm*", 
-    "minit_tls*", 
+    "minic*",
+    "mini_jvm*",
+    "minit_tls*",
     "mini_linker*"
 ]
 exclude = ["minic.test*", "minit_tls.test*"]
@@ -90,13 +90,13 @@ addopts = [
     "--strict-config",
     "--verbose",
     "--cov=minic",
-    "--cov=mini_jvm", 
+    "--cov=mini_jvm",
     "--cov=minit_tls",
     "--cov=mini_linker",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
-    "--ignore=minic/test/out",  # Ignore compiled outputs
+    "--ignore=minic/test/out", # Ignore compiled outputs
 ]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
@@ -126,9 +126,9 @@ profile = "black"
 multi_line_output = 3
 line_length = 88
 known_first_party = [
-    "minic", 
-    "mini_jvm", 
-    "minit_tls", 
+    "minic",
+    "mini_jvm",
+    "minit_tls",
     "mini_linker"
 ]
 known_third_party = ["llvmlite", "pytest"]

@@ -3,13 +3,14 @@ from dataclasses import dataclass
 from typing import List, Dict, Optional, Any, Tuple
 
 # ---------- Bytecode opcodes ----------
-LOAD_LOCAL = "LOAD_LOCAL"    # push local[slot]
+LOAD_LOCAL = "LOAD_LOCAL"  # push local[slot]
 STORE_LOCAL = "STORE_LOCAL"  # pop -> local[slot]
-PUSH_CONST = "PUSH_CONST"    # push immediate int
-IADD       = "IADD"          # pop b, pop a, push a+b
-RETURN     = "RETURN"        # return from current frame
-CALL_VIRT  = "CALL_VIRT"     # pop recv; dynamic dispatch on recv.class
-CALL_STATIC= "CALL_STATIC"   # pop N args; call class.static[method]
+PUSH_CONST = "PUSH_CONST"  # push immediate int
+IADD = "IADD"  # pop b, pop a, push a+b
+RETURN = "RETURN"  # return from current frame
+CALL_VIRT = "CALL_VIRT"  # pop recv; dynamic dispatch on recv.class
+CALL_STATIC = "CALL_STATIC"  # pop N args; call class.static[method]
+
 
 @dataclass
 class Method:
@@ -17,12 +18,13 @@ class Method:
     code: List[Tuple[str, Any]]
     max_locals: int  # number of local slots (for static, it's the arg count)
 
+
 @dataclass
 class ClassDef:
     name: str
     super: Optional["ClassDef"]
-    methods: Dict[str, Method]          # instance (virtual) methods
-    static_methods: Dict[str, Method]   # static methods
+    methods: Dict[str, Method]  # instance (virtual) methods
+    static_methods: Dict[str, Method]  # static methods
 
     # virtual resolve
     def resolve_method(self, name: str) -> Method:
@@ -39,10 +41,12 @@ class ClassDef:
             return self.static_methods[name]
         raise LookupError(f"{self.name}: static method {name} not found")
 
+
 @dataclass
 class ObjRef:
     cls: ClassDef
     fields: Dict[str, Any]
+
 
 @dataclass
 class Frame:
@@ -51,13 +55,14 @@ class Frame:
     stack: List[Any]
     ip: int = 0
 
+
 class VM:
     def __init__(self, trace=False):
         self.stack_frames: List[Frame] = []
         self.trace = trace
 
     def push_frame(self, method: Method, args: List[Any]):
-        frame = Frame(method=method, locals=[None]*method.max_locals, stack=[])
+        frame = Frame(method=method, locals=[None] * method.max_locals, stack=[])
         for i, v in enumerate(args):
             frame.locals[i] = v
         self.stack_frames.append(frame)
@@ -82,19 +87,23 @@ class VM:
         f.ip += 1
 
         if self.trace:
-            print(f"ip={f.ip-1:<2} op={op} arg={arg if arg else ''}")
+            print(f"ip={f.ip - 1:<2} op={op} arg={arg if arg else ''}")
 
         if op == LOAD_LOCAL:
-            idx = arg[0]; f.stack.append(f.locals[idx])
+            idx = arg[0];
+            f.stack.append(f.locals[idx])
 
         elif op == STORE_LOCAL:
-            idx = arg[0]; f.locals[idx] = f.stack.pop()
+            idx = arg[0];
+            f.locals[idx] = f.stack.pop()
 
         elif op == PUSH_CONST:
             f.stack.append(arg[0])
 
         elif op == IADD:
-            b = f.stack.pop(); a = f.stack.pop(); f.stack.append(a + b)
+            b = f.stack.pop();
+            a = f.stack.pop();
+            f.stack.append(a + b)
 
         elif op == CALL_VIRT:
             method_name = arg[0]
@@ -102,7 +111,7 @@ class VM:
             if not isinstance(recv, ObjRef):
                 raise TypeError("CALL_VIRT expects an object")
             target = recv.cls.resolve_method(method_name)  # 动态分派
-            self.push_frame(target, [recv])                # this 放在 slot0
+            self.push_frame(target, [recv])  # this 放在 slot0
             ret = self.run_until_return()
             if ret is not None:
                 f.stack.append(ret)
@@ -112,7 +121,7 @@ class VM:
             cls: ClassDef = arg[0]
             method_name: str = arg[1]
             n_args: int = arg[2]
-            target = cls.resolve_static(method_name)       # 静态解析（不看接收者类型）
+            target = cls.resolve_static(method_name)  # 静态解析（不看接收者类型）
             # 从操作数栈弹 n_args（注意参数顺序）
             args = [f.stack.pop() for _ in range(n_args)][::-1]
             self.push_frame(target, args)
@@ -146,6 +155,7 @@ class VM:
         print(f"  stack : {f.stack}")
         print()
 
+
 # ---------- Build classes ----------
 # Animal.sound() -> 1
 Animal_sound = Method("sound", [(PUSH_CONST, 1), (RETURN,)], max_locals=1)
@@ -159,12 +169,12 @@ Dog = ClassDef("Dog", Animal, methods={"sound": Dog_sound}, static_methods={})
 Util_add = Method(
     "add",
     [
-        (LOAD_LOCAL, 0),   # x
-        (LOAD_LOCAL, 1),   # y
-        (IADD,),           # x+y
+        (LOAD_LOCAL, 0),  # x
+        (LOAD_LOCAL, 1),  # y
+        (IADD,),  # x+y
         (RETURN,),
     ],
-    max_locals=2,          # 两个形参，无 this
+    max_locals=2,  # 两个形参，无 this
 )
 Util = ClassDef("Util", None, methods={}, static_methods={"add": Util_add})
 
@@ -172,8 +182,8 @@ Util = ClassDef("Util", None, methods={}, static_methods={"add": Util_add})
 Main_call = Method(
     "Main.call",
     [
-        (LOAD_LOCAL, 0),          # a
-        (CALL_VIRT, "sound"),     # 虚调用
+        (LOAD_LOCAL, 0),  # a
+        (CALL_VIRT, "sound"),  # 虚调用
         (RETURN,),
     ],
     max_locals=1,

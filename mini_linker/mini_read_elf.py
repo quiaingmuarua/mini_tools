@@ -344,5 +344,6 @@ def parse_elf(file_path: str, show_header: bool = False, show_ph: bool = False,
 
     return elf
 
+
 if __name__ == "__main__":
     parse_elf(file_path="../lib/libollvm_demo.so", show_header=True, show_ph=True, show_sh=True, show_syms=True)

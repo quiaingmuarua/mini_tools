@@ -7,9 +7,11 @@ including unit tests, integration tests, and property-based tests.
 
 try:
     import pytest
+
     PYTEST_AVAILABLE = True
 except ImportError:
     PYTEST_AVAILABLE = False
+
 
     # Mock pytest decorators when pytest is not available
     class MockPytest:
@@ -17,17 +19,22 @@ except ImportError:
             @staticmethod
             def unit(func):
                 return func
+
             @staticmethod
             def integration(func):
                 return func
+
         @staticmethod
         def raises(exception):
             class RaisesContext:
                 def __enter__(self):
                     return self
+
                 def __exit__(self, exc_type, exc_val, exc_tb):
                     return exc_type is not None and issubclass(exc_type, exception)
+
             return RaisesContext()
+
         @staticmethod
         def main(args):
             print(f"Pytest not available, running tests manually...")
@@ -35,7 +42,7 @@ except ImportError:
             import sys
             module = sys.modules[__name__]
             test_functions = [getattr(module, name) for name in dir(module)
-                            if name.startswith('test_') and callable(getattr(module, name))]
+                              if name.startswith('test_') and callable(getattr(module, name))]
 
             passed = 0
             failed = 0
@@ -51,6 +58,7 @@ except ImportError:
 
             print(f"\nTest summary: {passed} passed, {failed} failed")
             return 0 if failed == 0 else 1
+
 
     pytest = MockPytest()
 

@@ -1,26 +1,27 @@
 from math import sin
 
 
-def to_bytes(text:str):
+def to_bytes(text: str):
     return text.encode('utf-8')
 
 
-def md5_padding(message_bytes:bytes):
+def md5_padding(message_bytes: bytes):
     original_len = len(message_bytes)
-    message_bytes +=b'\x80'
+    message_bytes += b'\x80'
     message_len = len(message_bytes)
-    padding_len= 64-(8+message_len)%64
-    if padding_len!=64:
-        message_bytes +=b'\x00'*padding_len
-    message_bytes+=(8*original_len).to_bytes(8,'little')
+    padding_len = 64 - (8 + message_len) % 64
+    if padding_len != 64:
+        message_bytes += b'\x00' * padding_len
+    message_bytes += (8 * original_len).to_bytes(8, 'little')
     return message_bytes
 
 
-def group_64_bytes(message_bytes:bytes)->list:
-    group_bytes=[]
-    for i in range(0,len(message_bytes),64):
-        group_bytes.append(message_bytes[i:i+64])
+def group_64_bytes(message_bytes: bytes) -> list:
+    group_bytes = []
+    for i in range(0, len(message_bytes), 64):
+        group_bytes.append(message_bytes[i:i + 64])
     return group_bytes
+
 
 def md5_init():
     A = 0x67452301
@@ -33,7 +34,7 @@ def md5_init():
 def md5_block(block, A, B, C, D):
     AA, BB, CC, DD = A, B, C, D
     # 1. 把64字节分成16个32位
-    X = [int.from_bytes(block[i:i+4], 'little') for i in range(0, 64, 4)]
+    X = [int.from_bytes(block[i:i + 4], 'little') for i in range(0, 64, 4)]
     for i in range(64):
         if 0 <= i < 16:
             f = F(B, C, D)
@@ -58,37 +59,34 @@ def md5_block(block, A, B, C, D):
     # 3. 返回新A, B, C, D
     return A, B, C, D
 
+
 def F(B, C, D):
     return (B & C) | (~B & D)
 
 
-def G(B,C,D):
+def G(B, C, D):
     return (B & D) | (C & ~D)
 
 
-def H(B,C,D):
+def H(B, C, D):
     return B ^ C ^ D
 
 
-def I(B,C,D):
+def I(B, C, D):
     return C ^ (B | ~D)
 
 
-
-K = [int((2**32) * abs(sin(i + 1))) & 0xffffffff for i in range(64)]
+K = [int((2 ** 32) * abs(sin(i + 1))) & 0xffffffff for i in range(64)]
 s = [
-    7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,  7, 12, 17, 22,
-    5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,  5,  9, 14, 20,
-    4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,  4, 11, 16, 23,
-    6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,  6, 10, 15, 21,
+    7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22, 7, 12, 17, 22,
+    5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20, 5, 9, 14, 20,
+    4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23, 4, 11, 16, 23,
+    6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21, 6, 10, 15, 21,
 ]
-
-
 
 
 def left_rotate(x, n):
     return ((x << n) | (x >> (32 - n))) & 0xffffffff
-
 
 
 def md5_output(A, B, C, D):
@@ -97,8 +95,6 @@ def md5_output(A, B, C, D):
             B.to_bytes(4, 'little') +
             C.to_bytes(4, 'little') +
             D.to_bytes(4, 'little'))
-
-
 
 
 def md5_text(text: str):
@@ -129,6 +125,4 @@ if __name__ == '__main__':
 
     digest = md5_output(A, B, C, D)
     print(digest.hex())
-    #99b1ff8f11781541f7f89f9bd41c4a17
-
-
+    # 99b1ff8f11781541f7f89f9bd41c4a17

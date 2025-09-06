@@ -1,10 +1,11 @@
 # -------- Parser (recursive descent) --------
-from lexer import *
 from codegen import *
+from lexer import *
 from runtime import *
 
 
 class ParseError(Exception): pass
+
 
 class Parser:
     def __init__(self, lexer):
@@ -69,7 +70,7 @@ class Parser:
 
     def parse_stmt(self) -> Stmt:
         k = self.cur.kind
-        if k == Kind.KW_INT:          # vardecl
+        if k == Kind.KW_INT:  # vardecl
             self._eat(Kind.KW_INT)
             name = self._expect_ident()
             init = IntLit(0)
@@ -118,7 +119,7 @@ class Parser:
         raise ParseError(f"unexpected token {self.cur.kind.name} at {self.cur.line}:{self.cur.col}")
 
     # -- expressions (precedence climbing via levels) --
-    def parse_expr(self):             # lowest
+    def parse_expr(self):  # lowest
         return self.parse_equality()
 
     def parse_equality(self):
@@ -134,7 +135,7 @@ class Parser:
         node = self.parse_additive()
         while self.cur.kind in (Kind.LT, Kind.LTE, Kind.GT, Kind.GTE):
             k = self.cur.kind
-            op = {Kind.LT:'<', Kind.LTE:'<=', Kind.GT:'>', Kind.GTE:'>='}[k]
+            op = {Kind.LT: '<', Kind.LTE: '<=', Kind.GT: '>', Kind.GTE: '>='}[k]
             self._eat(k)
             rhs = self.parse_additive()
             node = Compare(op, node, rhs)

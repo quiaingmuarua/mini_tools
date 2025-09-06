@@ -3,7 +3,8 @@
 ````markdown
 # mini-c (Python + llvmlite)
 
-一个教学取向的“mini C”编译器：**前端自研（Lexer/Parser/AST）**，**后端用 LLVM（llvmlite）生成 IR**，既可 **JIT 运行**，也可 **输出可执行文件**。目标是把编译器主干完整串一遍：词法 → 语法 → 语义（轻量） → IR → 优化/生成。
+一个教学取向的“mini C”编译器：**前端自研（Lexer/Parser/AST）**，**后端用 LLVM（llvmlite）生成 IR**，既可 **JIT 运行**，也可 *
+*输出可执行文件**。目标是把编译器主干完整串一遍：词法 → 语法 → 语义（轻量） → IR → 优化/生成。
 
 > 适合作为“从脚本 VM 思维过渡到 LLVM/IR 思维”的练习项目。
 
@@ -12,6 +13,7 @@
 ## 功能概览（Status）
 
 ### ✅ 语言特性（子集）
+
 - 基本类型：`int`
 - 表达式：`+ - * /`，比较 `== != < <= > >=`
 - 一元运算：**`-x`（一元负号）**
@@ -21,27 +23,29 @@
 - 简易 I/O：`PrintI32(expr)` → 经由 `printf("%d\n")` 打印整型
 
 ### ✅ 编译链路
+
 - **Lexer**：关键字、标识符、十进制整型字面量、运算符/分隔符、`//` 与 `/* */` 注释、行列号
 - **Parser（递归下降）**：表达式优先级分层（或然等价 Pratt），函数/语句/块
 - **AST → LLVM IR**：
-  - 模块 triple & datalayout（取自本机）
-  - 函数原型声明 → 函数体定义
-  - **入口块 `entry` 专用 `alloca` + `br body`**（便于后续 `mem2reg`）
-  - 变量：`alloca/load/store`（简单直观，后续交由优化器提升）
-  - 分支/循环：`icmp` + `cbranch` + 基本块组织
-  - 调用：`call`（参数与返回值均 `i32`）
+    - 模块 triple & datalayout（取自本机）
+    - 函数原型声明 → 函数体定义
+    - **入口块 `entry` 专用 `alloca` + `br body`**（便于后续 `mem2reg`）
+    - 变量：`alloca/load/store`（简单直观，后续交由优化器提升）
+    - 分支/循环：`icmp` + `cbranch` + 基本块组织
+    - 调用：`call`（参数与返回值均 `i32`）
 - **执行方式**：
-  - **JIT（MCJIT）**：`engine.get_function_address("main")` → `ctypes` 调用
-  - **AOT**：IR → **.o（emit_object）** → **clang 链接为可执行文件**
+    - **JIT（MCJIT）**：`engine.get_function_address("main")` → `ctypes` 调用
+    - **AOT**：IR → **.o（emit_object）** → **clang 链接为可执行文件**
 - **优化实验**：
-  - `-O2` 或 `mem2reg`：观察局部变量/形参被提升为寄存器、分支合流自动插入 `phi`
-  - 汇编导出（可选）：`emit_assembly` 便于对照 ABI/栈帧
+    - `-O2` 或 `mem2reg`：观察局部变量/形参被提升为寄存器、分支合流自动插入 `phi`
+    - 汇编导出（可选）：`emit_assembly` 便于对照 ABI/栈帧
 
 ---
 
 ## 快速开始
 
 ### 依赖
+
 - Python 3.9+
 - `llvmlite`
 - 系统编译器（建议 `clang`；macOS 需 `xcode-select --install`）

@@ -1,6 +1,7 @@
 # Mini Tools Collection
 
-A comprehensive collection of educational programming tools and language implementations, covering compilers, virtual machines, cryptography, and systems programming.
+A comprehensive collection of educational programming tools and language implementations, covering compilers, virtual
+machines, cryptography, and systems programming.
 
 [![CI](https://github.com/your-username/mini-tools/workflows/CI/badge.svg)](https://github.com/your-username/mini-tools/actions)
 [![codecov](https://codecov.io/gh/your-username/mini-tools/branch/main/graph/badge.svg)](https://codecov.io/gh/your-username/mini-tools)
@@ -9,16 +10,18 @@ A comprehensive collection of educational programming tools and language impleme
 
 ## 🎯 Purpose
 
-This project is a comprehensive collection of educational and practical mini-tools for understanding fundamental computer science concepts:
+This project is a comprehensive collection of educational and practical mini-tools for understanding fundamental
+computer science concepts:
 
 - **Compiler Construction** - C compiler with LLVM backend
-- **Virtual Machines** - JVM implementation and JavaScript VM with VMP protection  
+- **Virtual Machines** - JVM implementation and JavaScript VM with VMP protection
 - **Cryptography & Security** - TLS protocols, ECDHE, encryption algorithms
 - **Systems Programming** - ELF parsing, linking, and binary analysis
 
 ## 🚀 Tools Overview
 
 ### 🔧 MiniC - C Compiler with LLVM Backend
+
 - **Complete C subset compiler** with lexer, parser, and LLVM IR generation
 - **JIT execution** using MCJIT engine
 - **AOT compilation** to native executables
@@ -26,20 +29,23 @@ This project is a comprehensive collection of educational and practical mini-too
 - **Features**: variables, functions, control flow (if/while), expressions
 
 ### ☕ Mini JVM - Java Virtual Machine
+
 - **Bytecode virtual machine** with stack-based execution
 - **Object-oriented features** with classes, methods, inheritance
 - **Static method support** and virtual method dispatch
 - **Frame-based execution** with local variables and operand stack
 
 ### 🟨 Mini JSVMP - JavaScript VM with VMP Protection
+
 - **Complete JavaScript interpreter** with bytecode compilation
 - **Advanced VMP protection**:
-  - Opcode permutation and stream decoding
-  - Immediate encryption with position-based PRNG
-  - Integrity checks and anti-tampering
+    - Opcode permutation and stream decoding
+    - Immediate encryption with position-based PRNG
+    - Integrity checks and anti-tampering
 - **Language features**: variables, functions, closures, control flow
 
 ### 🔐 MiniTLS - Cryptographic Tools
+
 - **ECDHE key exchange** implementation (NIST P-256)
 - **SEC1 point encoding/decoding** (compressed/uncompressed)
 - **HKDF key derivation** function
@@ -47,6 +53,7 @@ This project is a comprehensive collection of educational and practical mini-too
 - **Montgomery ladder** scalar multiplication (side-channel resistant)
 
 ### 🔗 Mini Linker - Binary Analysis Tools
+
 - **ELF parser** supporting ELF32/ELF64, little/big endian
 - **Binary analysis** with header, section, and symbol parsing
 - **Cross-platform support** for various architectures
@@ -212,6 +219,7 @@ mypy minic minit_tls mini_jvm mini_linker
 ### Tool-Specific Development
 
 #### MiniC Development
+
 ```bash
 # Run C compiler tests
 python minic/test/minic_test.py
@@ -220,13 +228,15 @@ python minic/test/minic_test.py
 python minic/test/example.py
 ```
 
-#### Mini JSVMP Development  
+#### Mini JSVMP Development
+
 ```bash
 # Run JavaScript VM tests
 node mini_jsvmp/test_examples.js
 ```
 
 #### Cryptography Development
+
 ```bash
 # Run comprehensive ECDHE tests
 python minit_tls/test/test_mini_ecdhe.py
@@ -272,14 +282,16 @@ mini_tools/
 This project follows comprehensive testing practices across all components:
 
 ### Testing Approaches
+
 - **Unit Tests** - Individual function and component testing
-- **Integration Tests** - Cross-component interaction testing  
+- **Integration Tests** - Cross-component interaction testing
 - **Compiler Tests** - End-to-end compilation and execution testing
 - **VM Tests** - Bytecode execution and runtime behavior testing
 - **Cryptographic Tests** - Mathematical property and vector validation
 - **Binary Analysis Tests** - ELF parsing and format validation
 
 ### Tool-Specific Testing
+
 - **MiniC**: IR generation, optimization, and executable output validation
 - **Mini JVM**: Bytecode execution, method dispatch, and object lifecycle
 - **Mini JSVMP**: VMP protection, bytecode integrity, and language features
@@ -291,12 +303,14 @@ This project follows comprehensive testing practices across all components:
 Multi-component CI/CD pipeline with GitHub Actions:
 
 ### Testing Matrix
+
 - **Python versions**: 3.8, 3.9, 3.10, 3.11, 3.12
 - **Operating systems**: Ubuntu, macOS, Windows
 - **LLVM dependencies**: llvmlite compatibility testing
 - **Node.js testing**: JavaScript VM validation
 
 ### Quality Assurance
+
 - **Code formatting**: black, isort
 - **Linting**: flake8, mypy type checking
 - **Security scanning**: bandit, safety
@@ -305,9 +319,11 @@ Multi-component CI/CD pipeline with GitHub Actions:
 
 ## ⚠️ Security Notice
 
-**Educational Purpose**: These implementations are primarily for educational and research purposes. While they follow established best practices, they have not undergone formal security audits.
+**Educational Purpose**: These implementations are primarily for educational and research purposes. While they follow
+established best practices, they have not undergone formal security audits.
 
 **Production Use Guidance**:
+
 - **Cryptography**: Use established libraries (`cryptography`, `pycryptodome`, OpenSSL)
 - **Compilers**: For production, use mature toolchains (GCC, Clang, OpenJDK)
 - **VMs**: Consider proven implementations (V8, SpiderMonkey, OpenJDK HotSpot)
@@ -315,20 +331,25 @@ Multi-component CI/CD pipeline with GitHub Actions:
 ## 📚 Educational Resources
 
 ### Compiler Construction
+
 - [Crafting Interpreters](https://craftinginterpreters.com/) - Language implementation guide
-- [LLVM Language Reference](https://llvm.org/docs/LangRef.html) - LLVM IR documentation  
+- [LLVM Language Reference](https://llvm.org/docs/LangRef.html) - LLVM IR documentation
 - [Dragon Book](https://en.wikipedia.org/wiki/Compilers:_Principles,_Techniques,_and_Tools) - Classic compiler design
 
 ### Virtual Machines
+
 - [JVM Specification](https://docs.oracle.com/javase/specs/jvms/se17/html/) - Official JVM documentation
-- [Virtual Machine Design](https://www.amazon.com/Virtual-Machine-Design-Implementation-Book/dp/1558609105) - VM implementation guide
+- [Virtual Machine Design](https://www.amazon.com/Virtual-Machine-Design-Implementation-Book/dp/1558609105) - VM
+  implementation guide
 
 ### Cryptography
+
 - [Elliptic Curve Cryptography: A Gentle Introduction](https://andrea.corbellini.name/2015/05/17/elliptic-curve-cryptography-a-gentle-introduction/)
 - [RFC 5869 - HKDF](https://tools.ietf.org/html/rfc5869) - Key derivation standard
 - [SEC 1: Elliptic Curve Cryptography](https://www.secg.org/sec1-v2.pdf) - ECC standards
 
-### Binary Analysis  
+### Binary Analysis
+
 - [ELF Format Specification](https://refspecs.linuxfoundation.org/elf/elf.pdf) - Official ELF documentation
 - [Linkers and Loaders](https://www.amazon.com/Linkers-Loaders-John-Levine/dp/1558604960) - Linking concepts
 
@@ -344,6 +365,7 @@ We welcome contributions to all components! Please:
 6. **Submit** a pull request
 
 ### Component-Specific Guidelines
+
 - **MiniC**: Add test cases for new language features
 - **Mini JVM**: Include bytecode test cases
 - **Mini JSVMP**: Test both regular and VMP-protected execution
@@ -357,7 +379,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🙏 Acknowledgments
 
 - **LLVM Project** - Infrastructure for modern compiler design
-- **NIST** - Cryptographic standards and specifications  
+- **NIST** - Cryptographic standards and specifications
 - **ELF Specification** - Binary format documentation
 - **Open Source Community** - Inspiration and foundational knowledge
 - **Contributors** - All users and contributors to this project

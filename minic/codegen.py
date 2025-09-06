@@ -1,5 +1,5 @@
 from llvmlite import ir, binding
-import ctypes
+
 from runtime import declare_printf, intern_cstr
 
 
@@ -74,13 +74,16 @@ class Program(Node):
     def __init__(self, funcs: list[Function]):
         self.funcs = funcs  # 修正：从 func 改为 funcs
 
+
 class PrintI32(Stmt):
     def __init__(self, expr: Expr):
         self.expr = expr
 
+
 class UnaryOp(Expr):
     def __init__(self, op: str, expr: Expr):
         self.op, self.expr = op, expr
+
 
 # ---------- 2) Codegen ----------
 i32 = ir.IntType(32)
@@ -105,7 +108,6 @@ class Codegen:
         self.builder = None  # 当前构建器
         self.alloca_builder = None  # 分配构建器
         self._fmt_int = None  # 缓存 "%d\n" 的全局常量
-
 
     def alloca_i32(self, name: str):
         # 在 entry 的跳转之前插入
@@ -310,8 +312,3 @@ def generate_ir(program: Program) -> str:
 
 def generate_block_ir(program: Block) -> str:
     return Codegen().codegen_block(program)
-
-
-
-
-

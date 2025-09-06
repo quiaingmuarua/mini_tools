@@ -1,5 +1,3 @@
-
-
 ```shell
 /usr/bin/python3 driver.py examples/add.mc --emit-llvm
 ```

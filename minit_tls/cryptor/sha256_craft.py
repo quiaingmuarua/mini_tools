@@ -1,8 +1,6 @@
-
-
 class SHA256Craft:
     def __init__(self):
-        #初始化 register magic number
+        # 初始化 register magic number
         self.H = [
             0x6a09e667,
             0xbb67ae85,
@@ -13,7 +11,7 @@ class SHA256Craft:
             0x1f83d9ab,
             0x5be0cd19,
         ]
-        #init K常量表
+        # init K常量表
         self.K = [
             0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5,
             0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
@@ -33,7 +31,7 @@ class SHA256Craft:
             0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
         ]
 
-    def encrypt(self, text:str):
+    def encrypt(self, text: str):
         message_bytes = self.to_bytes(text)
         padding_bytes = self.padding_bytes(message_bytes)
         blocks = self.group_64_bytes(padding_bytes)
@@ -68,7 +66,9 @@ class SHA256Craft:
 
     def output(self):
         a, b, c, d, e, f, g, h = self.H
-        return a.to_bytes(4, "big") + b.to_bytes(4, "big") + c.to_bytes(4, "big") + d.to_bytes(4, "big") + e.to_bytes(4, "big") + f.to_bytes(4, "big") + g.to_bytes(4, "big") + h.to_bytes(4, "big")
+        return a.to_bytes(4, "big") + b.to_bytes(4, "big") + c.to_bytes(4, "big") + d.to_bytes(4, "big") + e.to_bytes(4,
+                                                                                                                      "big") + f.to_bytes(
+            4, "big") + g.to_bytes(4, "big") + h.to_bytes(4, "big")
 
     @staticmethod
     def to_bytes(text):
@@ -91,16 +91,13 @@ class SHA256Craft:
             group_bytes.append(message_bytes[i:i + 64])
         return group_bytes
 
-
-
-
     @staticmethod
     def right_rotate(x, n):
         return ((x << (32 - n)) | (x >> n)) & 0xffffffff
+
 
 if __name__ == '__main__':
     sha256_craft = SHA256Craft()
     text = "hello_world"
     print(sha256_craft.encrypt(text).hex())
-    #35072c1ae546350e0bfa7ab11d49dc6f129e72ccd57ec7eb671225bbd197c8f1
-
+    # 35072c1ae546350e0bfa7ab11d49dc6f129e72ccd57ec7eb671225bbd197c8f1

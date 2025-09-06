@@ -4,19 +4,39 @@ from __future__ import annotations
 from dataclasses import dataclass
 from enum import Enum, auto
 
+
 class Kind(Enum):
     # keywords
-    KW_INT = auto(); KW_RETURN = auto(); KW_IF = auto(); KW_ELSE = auto(); KW_WHILE = auto()
+    KW_INT = auto();
+    KW_RETURN = auto();
+    KW_IF = auto();
+    KW_ELSE = auto();
+    KW_WHILE = auto()
     # identifiers & literals
-    IDENT = auto(); INT_LIT = auto()
+    IDENT = auto();
+    INT_LIT = auto()
     # operators
-    PLUS = auto(); MINUS = auto(); STAR = auto(); SLASH = auto(); PERCENT = auto()
-    EQ = auto(); EQEQ = auto(); BANGEQ = auto()
-    LT = auto(); LTE = auto(); GT = auto(); GTE = auto()
+    PLUS = auto();
+    MINUS = auto();
+    STAR = auto();
+    SLASH = auto();
+    PERCENT = auto()
+    EQ = auto();
+    EQEQ = auto();
+    BANGEQ = auto()
+    LT = auto();
+    LTE = auto();
+    GT = auto();
+    GTE = auto()
     # punct
-    LPAREN = auto(); RPAREN = auto(); LBRACE = auto(); RBRACE = auto()
-    COMMA = auto(); SEMI = auto()
+    LPAREN = auto();
+    RPAREN = auto();
+    LBRACE = auto();
+    RBRACE = auto()
+    COMMA = auto();
+    SEMI = auto()
     EOF = auto()
+
 
 KEYWORDS = {
     "int": Kind.KW_INT,
@@ -26,6 +46,7 @@ KEYWORDS = {
     "while": Kind.KW_WHILE,
 }
 
+
 @dataclass
 class Token:
     kind: Kind
@@ -33,6 +54,7 @@ class Token:
     line: int
     col: int
     value: int | None = None  # only for INT_LIT
+
 
 # ---------- Lexer ----------
 class Lexer:
@@ -42,13 +64,18 @@ class Lexer:
         self.line = 1
         self.col = 1
 
-    def _eof(self): return self.i >= len(self.src)
-    def _peek(self, k=0): return '\0' if self.i + k >= len(self.src) else self.src[self.i + k]
+    def _eof(self):
+        return self.i >= len(self.src)
+
+    def _peek(self, k=0):
+        return '\0' if self.i + k >= len(self.src) else self.src[self.i + k]
+
     def _adv(self):
         ch = self._peek()
         self.i += 1
         if ch == '\n':
-            self.line += 1; self.col = 1
+            self.line += 1;
+            self.col = 1
         else:
             self.col += 1
         return ch
@@ -64,14 +91,16 @@ class Lexer:
             ch = self._peek()
             # whitespace
             if ch in ' \t\r\n':
-                self._adv(); continue
+                self._adv();
+                continue
             # // line comment
             if ch == '/' and self._peek(1) == '/':
                 while not self._eof() and self._peek() != '\n': self._adv()
                 continue
             # /* block comment */
             if ch == '/' and self._peek(1) == '*':
-                self._adv(); self._adv()
+                self._adv();
+                self._adv()
                 while not self._eof() and not (self._peek() == '*' and self._peek(1) == '/'):
                     self._adv()
                 if not self._eof(): self._adv(); self._adv()
@@ -144,7 +173,8 @@ if __name__ == "__main__":
     lx = Lexer(src)
     toks = []
     while True:
-        t = lx.next(); toks.append(t)
+        t = lx.next();
+        toks.append(t)
         if t.kind == Kind.EOF: break
 
     # 简洁打印

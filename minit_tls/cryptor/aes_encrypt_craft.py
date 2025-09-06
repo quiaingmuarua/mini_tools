@@ -127,12 +127,12 @@ def key_expansion_128(hex_key_matrix):
 
 # ---------- Encrypt one 16-byte block ----------
 def encrypt_block(hex_plain_state, hex_key_state):
-    #扩展密钥
+    # 扩展密钥
     rkeys = key_expansion_128(hex_key_state)
-    #round0 AddRoundKey
+    # round0 AddRoundKey
     state = add_round_key(pd.DataFrame(hex_plain_state), rkeys[0])  # Round 0
     for r in range(1, 10):  # Rounds 1..9
-        #SubBytes
+        # SubBytes
         state = sub_bytes_hex_df(state)
         state = shift_rows_hex_df(state)
         state = mix_columns_hex_df(state)
@@ -168,4 +168,3 @@ if __name__ == "__main__":
     cipher_hex = ' '.join(out)
     print("Ciphertext:", cipher_hex)
     # Expected: 39 25 84 1d 02 dc 09 fb dc 11 85 97 19 6a 0b 32
-

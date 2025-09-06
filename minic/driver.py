@@ -1,11 +1,15 @@
 # driver.py
-import argparse, sys, pathlib
+import argparse
+import pathlib
+import sys
+
+from codegen import Codegen
 from lexer import Lexer
 from parser import Parser, ParseError  # 如果你没暴露 ParseError，改成: "from parser import Parser"
-from codegen import Codegen
 from runtime import (
     jit_run, emit_executable, optimize_ir, emit_assembly,
 )
+
 
 def build_ir_from_source(src: str, opt_level: int) -> str:
     # 源码 -> AST -> IR -> (可选)优化
@@ -15,10 +19,11 @@ def build_ir_from_source(src: str, opt_level: int) -> str:
         ir = optimize_ir(ir, level=opt_level)
     return ir
 
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="minicc", description="mini-C compiler (Python + llvmlite)")
     ap.add_argument("file", help="source file (.mc). Use '-' to read from stdin")
-    ap.add_argument("-O", "--opt", type=int, default=0, choices=(0,1,2,3), help="opt level (default: 0)")
+    ap.add_argument("-O", "--opt", type=int, default=0, choices=(0, 1, 2, 3), help="opt level (default: 0)")
     ap.add_argument("-o", "--output", default="a.out", help="output (exe or .s)")
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--emit-llvm", action="store_true", help="print LLVM IR and exit")
@@ -63,6 +68,7 @@ def main(argv=None) -> int:
     emit_executable(llvm_ir, args.output, opt_level=args.opt)
     print(f"[ok] linked {args.output}")
     return 0
+
 
 if __name__ == "__main__":
     raise SystemExit(main())

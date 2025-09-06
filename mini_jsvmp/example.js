@@ -221,21 +221,21 @@ const complexExample = `
 
 // 简单演示（用于直接运行测试）
 if (require.main === module) {
-  console.log('🚀 Mini JSVMP 示例代码集合');
-  console.log('='.repeat(50));
-  console.log('这个文件包含了各种示例代码。');
-  console.log('运行 test_examples.js 来执行所有示例。');
-  console.log('或者 require() 这个模块来获取示例代码字符串。');
+    console.log('🚀 Mini JSVMP 示例代码集合');
+    console.log('='.repeat(50));
+    console.log('这个文件包含了各种示例代码。');
+    console.log('运行 test_examples.js 来执行所有示例。');
+    console.log('或者 require() 这个模块来获取示例代码字符串。');
 }
 
 // 导出所有示例
 module.exports = {
-  basicSyntax,
-  closureExample,
-  recursionExample,
-  conditionalExample,
-  stringExample,
-  vmpExample,
-  mathExample,
-  complexExample
+    basicSyntax,
+    closureExample,
+    recursionExample,
+    conditionalExample,
+    stringExample,
+    vmpExample,
+    mathExample,
+    complexExample
 };

@@ -1,9 +1,8 @@
 import os
 
 from minic.codegen import *
-from minic.runtime import optimize_ir, emit_executable, run_executable, emit_assembly, jit_run
-
 from minic.codegen import Block
+from minic.runtime import optimize_ir, emit_executable, run_executable, emit_assembly, jit_run
 
 
 def if_statement_expr():
@@ -46,7 +45,6 @@ def while_statement_expr():
     ])
 
 
-
 def function_statement_expr():
     return Program([
         Function("add", ["a", "b"], Block([
@@ -56,12 +54,10 @@ def function_statement_expr():
             VarDecl("x", IntLit(2)),
             VarDecl("y", IntLit(3)),
             VarDecl("z", Call("add", [Var("x"), Var("y")])),
-            PrintI32(Var("z")),              # ← 打印 z
+            PrintI32(Var("z")),  # ← 打印 z
             Return(Var("z")),
         ]))
     ])
-
-
 
 
 def block_demo():
@@ -72,8 +68,9 @@ def block_demo():
     print("=== LLVM IR (O2) ===\n", ll)
     print("exit code:", jit_run(ll))
 
+
 def function_demo():
-    llvm_ir =generate_ir(function_statement_expr())
+    llvm_ir = generate_ir(function_statement_expr())
     print("=== LLVM IR ===\n", llvm_ir)
     # llvm_ir = optimize_o2(ll)
     print("=== LLVM IR (O2) ===\n", llvm_ir)
@@ -83,9 +80,9 @@ def function_demo():
         f.write(llvm_ir)
 
     exe = os.path.abspath("out/mini_c_add")
-    emit_executable(llvm_ir, exe)       # 生成可执行文件
-    code = run_executable(exe)          # 运行可执行文件
-    print("program exit code:", code)   # 期望 5
+    emit_executable(llvm_ir, exe)  # 生成可执行文件
+    code = run_executable(exe)  # 运行可执行文件
+    print("program exit code:", code)  # 期望 5
 
     emit_assembly(llvm_ir, "out/mini_c_add.s")
 

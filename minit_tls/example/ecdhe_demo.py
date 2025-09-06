@@ -5,8 +5,9 @@ ECDHE 演示程序
 展示如何使用 mini_tool 进行椭圆曲线 Diffie-Hellman 密钥交换
 """
 
-import sys
 import os
+import sys
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mini_tool.minit_tls.network.mini_ecdhe import (
