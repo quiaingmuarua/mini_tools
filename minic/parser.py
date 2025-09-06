@@ -159,11 +159,11 @@ class Parser:
         return node
 
     def parse_multiplicative(self):
-        node = self.parse_primary()
+        node = self.parse_unary()
         while self.cur.kind in (Kind.STAR, Kind.SLASH):
             op = "*" if self.cur.kind == Kind.STAR else "/"
             self._eat(self.cur.kind)
-            rhs = self.parse_primary()
+            rhs = self.parse_unary()
             node = BinaryOp(op, node, rhs)
         return node
 
