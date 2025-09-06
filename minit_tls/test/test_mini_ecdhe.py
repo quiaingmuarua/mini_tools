@@ -12,7 +12,6 @@ try:
 except ImportError:
     PYTEST_AVAILABLE = False
 
-
     # Mock pytest decorators when pytest is not available
     class MockPytest:
         class mark:
@@ -40,9 +39,13 @@ except ImportError:
             print(f"Pytest not available, running tests manually...")
             # Run tests manually
             import sys
+
             module = sys.modules[__name__]
-            test_functions = [getattr(module, name) for name in dir(module)
-                              if name.startswith('test_') and callable(getattr(module, name))]
+            test_functions = [
+                getattr(module, name)
+                for name in dir(module)
+                if name.startswith("test_") and callable(getattr(module, name))
+            ]
 
             passed = 0
             failed = 0
@@ -59,7 +62,6 @@ except ImportError:
             print(f"\nTest summary: {passed} passed, {failed} failed")
             return 0 if failed == 0 else 1
 
-
     pytest = MockPytest()
 
 import os
@@ -67,32 +69,24 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from minit_tls.network.mini_ecdhe import (
-    # Key generation and ECDHE
-    gen_keypair,
+from minit_tls.network.mini_ecdhe import (  # Key generation and ECDHE; Point operations; Encoding/decoding; Constants and utilities
+    G,
+    O,
+    a,
+    b,
+    decode_point,
     ecdhe_shared,
+    encode_point,
+    gen_keypair,
     hkdf_sha256,
-
-    # Point operations
+    is_on_curve,
+    n,
+    negate,
+    p,
     point_add,
     point_double,
     scalar_mult,
-    negate,
-    is_on_curve,
-
-    # Encoding/decoding
-    encode_point,
-    decode_point,
-
-    # Constants and utilities
-    G,
-    n,
-    p,
-    a,
-    b,
-    O,
 )
-
 
 # ==================== 测试和验证代码 ====================
 

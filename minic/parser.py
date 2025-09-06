@@ -4,7 +4,8 @@ from lexer import *
 from runtime import *
 
 
-class ParseError(Exception): pass
+class ParseError(Exception):
+    pass
 
 
 class Parser:
@@ -15,7 +16,9 @@ class Parser:
     # -- utilities --
     def _eat(self, kind):
         if self.cur.kind != kind:
-            raise ParseError(f"expected {kind.name} at {self.cur.line}:{self.cur.col}, got {self.cur.kind.name}")
+            raise ParseError(
+                f"expected {kind.name} at {self.cur.line}:{self.cur.col}, got {self.cur.kind.name}"
+            )
         t = self.cur
         self.cur = self.lexer.next()
         return t
@@ -94,8 +97,11 @@ class Parser:
             else_blk = Block([])
             if self._match(Kind.KW_ELSE):
                 else_blk = self.parse_stmt()
-            return IfElse(cond, then_blk if isinstance(then_blk, Block) else Block([then_blk]),
-                          else_blk if isinstance(else_blk, Block) else Block([else_blk]))
+            return IfElse(
+                cond,
+                then_blk if isinstance(then_blk, Block) else Block([then_blk]),
+                else_blk if isinstance(else_blk, Block) else Block([else_blk]),
+            )
 
         if k == Kind.KW_WHILE:
             self._eat(Kind.KW_WHILE)
@@ -116,7 +122,9 @@ class Parser:
             self._eat(Kind.SEMI)
             return Assign(name, expr)
 
-        raise ParseError(f"unexpected token {self.cur.kind.name} at {self.cur.line}:{self.cur.col}")
+        raise ParseError(
+            f"unexpected token {self.cur.kind.name} at {self.cur.line}:{self.cur.col}"
+        )
 
     # -- expressions (precedence climbing via levels) --
     def parse_expr(self):  # lowest
@@ -125,7 +133,7 @@ class Parser:
     def parse_equality(self):
         node = self.parse_relational()
         while self.cur.kind in (Kind.EQEQ, Kind.BANGEQ):
-            op = '==' if self.cur.kind == Kind.EQEQ else '!='
+            op = "==" if self.cur.kind == Kind.EQEQ else "!="
             self._eat(self.cur.kind)
             rhs = self.parse_relational()
             node = Compare(op, node, rhs)
@@ -135,7 +143,7 @@ class Parser:
         node = self.parse_additive()
         while self.cur.kind in (Kind.LT, Kind.LTE, Kind.GT, Kind.GTE):
             k = self.cur.kind
-            op = {Kind.LT: '<', Kind.LTE: '<=', Kind.GT: '>', Kind.GTE: '>='}[k]
+            op = {Kind.LT: "<", Kind.LTE: "<=", Kind.GT: ">", Kind.GTE: ">="}[k]
             self._eat(k)
             rhs = self.parse_additive()
             node = Compare(op, node, rhs)
@@ -144,7 +152,7 @@ class Parser:
     def parse_additive(self):
         node = self.parse_multiplicative()
         while self.cur.kind in (Kind.PLUS, Kind.MINUS):
-            op = '+' if self.cur.kind == Kind.PLUS else '-'
+            op = "+" if self.cur.kind == Kind.PLUS else "-"
             self._eat(self.cur.kind)
             rhs = self.parse_multiplicative()
             node = BinaryOp(op, node, rhs)
@@ -153,7 +161,7 @@ class Parser:
     def parse_multiplicative(self):
         node = self.parse_primary()
         while self.cur.kind in (Kind.STAR, Kind.SLASH):
-            op = '*' if self.cur.kind == Kind.STAR else '/'
+            op = "*" if self.cur.kind == Kind.STAR else "/"
             self._eat(self.cur.kind)
             rhs = self.parse_primary()
             node = BinaryOp(op, node, rhs)
@@ -184,12 +192,14 @@ class Parser:
             self._eat(Kind.RPAREN)
             return node
 
-        raise ParseError(f"unexpected token in primary: {self.cur.kind.name} at {self.cur.line}:{self.cur.col}")
+        raise ParseError(
+            f"unexpected token in primary: {self.cur.kind.name} at {self.cur.line}:{self.cur.col}"
+        )
 
     def parse_multiplicative(self):
         node = self.parse_unary()
         while self.cur.kind in (Kind.STAR, Kind.SLASH):
-            op = '*' if self.cur.kind == Kind.STAR else '/'
+            op = "*" if self.cur.kind == Kind.STAR else "/"
             self._eat(self.cur.kind)
             rhs = self.parse_unary()
             node = BinaryOp(op, node, rhs)
@@ -198,11 +208,11 @@ class Parser:
     def parse_unary(self):
         if self.cur.kind == Kind.MINUS:
             self._eat(Kind.MINUS)
-            return UnaryOp('-', self.parse_unary())  # 右结合：-(-x) OK
+            return UnaryOp("-", self.parse_unary())  # 右结合：-(-x) OK
         return self.parse_primary()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     src = r"""
     int main() {
       int x = -3;

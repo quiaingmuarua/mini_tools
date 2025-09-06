@@ -11,11 +11,11 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from mini_tool.minit_tls.network.mini_ecdhe import (
-    gen_keypair,
-    ecdhe_shared,
-    hkdf_sha256,
-    encode_point,
     decode_point,
+    ecdhe_shared,
+    encode_point,
+    gen_keypair,
+    hkdf_sha256,
 )
 
 
@@ -57,10 +57,7 @@ def main():
     # 5. 使用 HKDF 派生会话密钥
     print("\n🎯 派生会话密钥...")
     session_key = hkdf_sha256(
-        ikm=alice_shared,
-        salt=b"demo-salt",
-        info=b"ecdhe-demo-session-key",
-        length=32
+        ikm=alice_shared, salt=b"demo-salt", info=b"ecdhe-demo-session-key", length=32
     )
 
     print(f"会话密钥: {session_key.hex()}")

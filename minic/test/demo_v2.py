@@ -6,7 +6,8 @@
 import ctypes
 import sys
 
-from llvmlite import ir, binding as llvm
+from llvmlite import binding as llvm
+from llvmlite import ir
 
 # ------------ LEXER ------------
 KEYWORDS = {"int", "return", "if", "else", "while", "break", "continue"}
@@ -30,11 +31,11 @@ class Lexer:
 
     def _peek(self, k=0):
         j = self.i + k
-        return self.src[j] if j < self.n else '\0'
+        return self.src[j] if j < self.n else "\0"
 
     def _advance(self):
         ch = self._peek()
-        if ch != '\0':
+        if ch != "\0":
             self.i += 1
         return ch
 
@@ -42,48 +43,50 @@ class Lexer:
         s = []
         while pred(self._peek()):
             s.append(self._advance())
-        return ''.join(s)
+        return "".join(s)
 
     def tokens(self):
         tks = []
         while True:
             ch = self._peek()
-            if ch == '\0':
-                tks.append(Token('EOF'))
+            if ch == "\0":
+                tks.append(Token("EOF"))
                 break
             if ch.isspace():
                 self._advance()
                 continue
-            if ch.isalpha() or ch == '_':
-                ident = self._consume_while(lambda c: c.isalnum() or c == '_')
+            if ch.isalpha() or ch == "_":
+                ident = self._consume_while(lambda c: c.isalnum() or c == "_")
                 if ident in KEYWORDS:
-                    tks.append(Token(ident.upper()))  # 'INT','RETURN','IF','ELSE','WHILE'
+                    tks.append(
+                        Token(ident.upper())
+                    )  # 'INT','RETURN','IF','ELSE','WHILE'
                 else:
-                    tks.append(Token('IDENT', ident))
+                    tks.append(Token("IDENT", ident))
                 continue
             if ch.isdigit():
                 num = self._consume_while(lambda c: c.isdigit())
-                tks.append(Token('NUMBER', int(num)))
+                tks.append(Token("NUMBER", int(num)))
                 continue
 
             # --- handle comments ---
             two = ch + self._peek(1)
             if two == "//":
                 # skip till end of line
-                self._advance();
                 self._advance()
-                while self._peek() not in ('\n', '\r', '\0'):
+                self._advance()
+                while self._peek() not in ("\n", "\r", "\0"):
                     self._advance()
                 continue
             if two == "/*":
                 # skip block comment
-                self._advance();
+                self._advance()
                 self._advance()
                 while True:
-                    if self._peek() == '\0':
+                    if self._peek() == "\0":
                         raise SyntaxError("Unterminated block comment")
-                    if self._peek() == '*' and self._peek(1) == '/':
-                        self._advance();
+                    if self._peek() == "*" and self._peek(1) == "/":
+                        self._advance()
                         self._advance()
                         break
                     self._advance()
@@ -91,7 +94,7 @@ class Lexer:
 
             if two in ("==", "!=", "<=", ">="):
                 tks.append(Token(two))
-                self._advance();
+                self._advance()
                 self._advance()
                 continue
 
@@ -105,57 +108,71 @@ class Lexer:
 
 
 # ------------ AST NODES ------------
-class Node: pass
+class Node:
+    pass
 
 
 class Number(Node):
-    def __init__(self, v): self.v = v
+    def __init__(self, v):
+        self.v = v
 
 
 class Var(Node):
-    def __init__(self, name): self.name = name
+    def __init__(self, name):
+        self.name = name
 
 
 class BinOp(Node):
-    def __init__(self, op, a, b): self.op, self.a, self.b = op, a, b
+    def __init__(self, op, a, b):
+        self.op, self.a, self.b = op, a, b
 
 
 class Assign(Node):
-    def __init__(self, name, expr): self.name, self.expr = name, expr
+    def __init__(self, name, expr):
+        self.name, self.expr = name, expr
 
 
 class VarDecl(Node):
-    def __init__(self, name, init): self.name, self.init = name, init
+    def __init__(self, name, init):
+        self.name, self.init = name, init
 
 
 class Return(Node):
-    def __init__(self, expr): self.expr = expr
+    def __init__(self, expr):
+        self.expr = expr
 
 
 class If(Node):
-    def __init__(self, cond, then, els): self.cond, self.then, self.els = cond, then, els
+    def __init__(self, cond, then, els):
+        self.cond, self.then, self.els = cond, then, els
 
 
 class While(Node):
-    def __init__(self, cond, body): self.cond, self.body = cond, body
+    def __init__(self, cond, body):
+        self.cond, self.body = cond, body
 
 
 class Block(Node):
-    def __init__(self, stmts): self.stmts = stmts
+    def __init__(self, stmts):
+        self.stmts = stmts
 
 
 class Call(Node):
-    def __init__(self, name, args): self.name, self.args = name, args
+    def __init__(self, name, args):
+        self.name, self.args = name, args
 
 
 class Function(Node):
-    def __init__(self, name, body): self.name, self.body = name, body
+    def __init__(self, name, body):
+        self.name, self.body = name, body
 
 
-class Break(Node): pass
+class Break(Node):
+    pass
 
 
-class Continue(Node): pass
+class Continue(Node):
+    pass
 
 
 # ------------ PARSER (recursive descent with precedence) ------------
@@ -176,80 +193,80 @@ class Parser:
 
     # program := 'INT' 'main' '(' ')' block
     def parse_program(self):
-        self._eat('INT');
-        ident = self._eat('IDENT')
-        if ident.value != 'main':
+        self._eat("INT")
+        ident = self._eat("IDENT")
+        if ident.value != "main":
             raise SyntaxError("Only 'int main()' supported in this toy.")
-        self._eat('(');
-        self._eat(')');
+        self._eat("(")
+        self._eat(")")
         body = self.parse_block()
-        return Function('main', body)
+        return Function("main", body)
 
     def parse_block(self):
-        self._eat('{')
+        self._eat("{")
         stmts = []
-        while self._peek().kind != '}':
+        while self._peek().kind != "}":
             stmts.append(self.parse_stmt())
-        self._eat('}')
+        self._eat("}")
         return Block(stmts)
 
     def parse_stmt(self):
         k = self._peek().kind
-        if k == ';':
-            self._eat(';');
+        if k == ";":
+            self._eat(";")
             return Block([])  # empty statement
-        if k == 'INT':
-            self._eat('INT');
-            name = self._eat('IDENT').value
+        if k == "INT":
+            self._eat("INT")
+            name = self._eat("IDENT").value
             init = None
-            if self._peek().kind == '=':
-                self._eat('=')
+            if self._peek().kind == "=":
+                self._eat("=")
                 init = self.parse_expr()
-            self._eat(';')
+            self._eat(";")
             return VarDecl(name, init)
-        if k == 'RETURN':
-            self._eat('RETURN')
+        if k == "RETURN":
+            self._eat("RETURN")
             expr = self.parse_expr()
-            self._eat(';')
+            self._eat(";")
             return Return(expr)
-        if k == 'IF':
-            self._eat('IF');
-            self._eat('(')
-            cond = self.parse_expr();
-            self._eat(')')
+        if k == "IF":
+            self._eat("IF")
+            self._eat("(")
+            cond = self.parse_expr()
+            self._eat(")")
             then = self.parse_stmt()
             els = None
-            if self._peek().kind == 'ELSE':
-                self._eat('ELSE')
+            if self._peek().kind == "ELSE":
+                self._eat("ELSE")
                 els = self.parse_stmt()
             return If(cond, then, els)
-        if k == 'WHILE':
-            self._eat('WHILE');
-            self._eat('(')
-            cond = self.parse_expr();
-            self._eat(')')
+        if k == "WHILE":
+            self._eat("WHILE")
+            self._eat("(")
+            cond = self.parse_expr()
+            self._eat(")")
             body = self.parse_stmt()
             return While(cond, body)
-        if k == '{':
+        if k == "{":
             return self.parse_block()
-        if k == 'BREAK':
-            self._eat('BREAK');
-            self._eat(';')
+        if k == "BREAK":
+            self._eat("BREAK")
+            self._eat(";")
             return Break()
-        if k == 'CONTINUE':
-            self._eat('CONTINUE');
-            self._eat(';')
+        if k == "CONTINUE":
+            self._eat("CONTINUE")
+            self._eat(";")
             return Continue()
 
         # assignment or expr-stmt
-        if k == 'IDENT' and self._peek(1).kind == '=':
-            name = self._eat('IDENT').value;
-            self._eat('=')
-            expr = self.parse_expr();
-            self._eat(';')
+        if k == "IDENT" and self._peek(1).kind == "=":
+            name = self._eat("IDENT").value
+            self._eat("=")
+            expr = self.parse_expr()
+            self._eat(";")
             return Assign(name, expr)
-        expr = self.parse_expr();
-        self._eat(';')
+        expr = self.parse_expr()
+        self._eat(";")
         return expr  # expression statement (e.g., call)
 
     # expr precedence: equality > relational > add > mul > unary > primary
@@ -258,7 +275,7 @@ class Parser:
 
     def parse_equality(self):
         node = self.parse_rel()
-        while self._peek().kind in ('==', '!='):
+        while self._peek().kind in ("==", "!="):
             op = self._eat().kind
             rhs = self.parse_rel()
             node = BinOp(op, node, rhs)
@@ -266,7 +283,7 @@ class Parser:
 
     def parse_rel(self):
         node = self.parse_add()
-        while self._peek().kind in ('<', '>', '<=', '>='):
+        while self._peek().kind in ("<", ">", "<=", ">="):
             op = self._eat().kind
             rhs = self.parse_add()
             node = BinOp(op, node, rhs)
@@ -274,7 +291,7 @@ class Parser:
 
     def parse_add(self):
         node = self.parse_mul()
-        while self._peek().kind in ('+', '-'):
+        while self._peek().kind in ("+", "-"):
             op = self._eat().kind
             rhs = self.parse_mul()
             node = BinOp(op, node, rhs)
@@ -282,14 +299,14 @@ class Parser:
 
     def parse_mul(self):
         node = self.parse_unary()
-        while self._peek().kind in ('*', '/'):
+        while self._peek().kind in ("*", "/"):
             op = self._eat().kind
             rhs = self.parse_unary()
             node = BinOp(op, node, rhs)
         return node
 
     def parse_unary(self):
-        if self._peek().kind in ('+', '-'):
+        if self._peek().kind in ("+", "-"):
             op = self._eat().kind
             rhs = self.parse_unary()
             # encode unary as (0 +/- rhs)
@@ -299,26 +316,26 @@ class Parser:
 
     def parse_primary(self):
         tk = self._peek()
-        if tk.kind == 'NUMBER':
-            self._eat('NUMBER');
+        if tk.kind == "NUMBER":
+            self._eat("NUMBER")
             return Number(tk.value)
-        if tk.kind == 'IDENT':
-            ident = self._eat('IDENT').value
-            if self._peek().kind == '(':
-                self._eat('(')
+        if tk.kind == "IDENT":
+            ident = self._eat("IDENT").value
+            if self._peek().kind == "(":
+                self._eat("(")
                 args = []
-                if self._peek().kind != ')':
+                if self._peek().kind != ")":
                     args.append(self.parse_expr())
-                    while self._peek().kind == ',':
-                        self._eat(',')
+                    while self._peek().kind == ",":
+                        self._eat(",")
                         args.append(self.parse_expr())
-                self._eat(')')
+                self._eat(")")
                 return Call(ident, args)
             return Var(ident)
-        if tk.kind == '(':
-            self._eat('(');
-            e = self.parse_expr();
-            self._eat(')');
+        if tk.kind == "(":
+            self._eat("(")
+            e = self.parse_expr()
+            self._eat(")")
             return e
         raise SyntaxError(f"Unexpected token in primary: {tk}")
 
@@ -352,7 +369,8 @@ class CodeGen:
 
     def lookup(self, name):
         for env in reversed(self.env_stack):
-            if name in env: return env[name]
+            if name in env:
+                return env[name]
         raise NameError(f"Undefined variable: {name}")
 
     def create_entry_alloca(self, name):
@@ -452,13 +470,17 @@ class CodeGen:
             return None
 
         if isinstance(node, BinOp):
-            a = self.codegen(node.a);
+            a = self.codegen(node.a)
             b = self.codegen(node.b)
-            if node.op in ('+', '-', '*', '/'):
-                ops = {'+': self.builder.add, '-': self.builder.sub,
-                       '*': self.builder.mul, '/': self.builder.sdiv}
+            if node.op in ("+", "-", "*", "/"):
+                ops = {
+                    "+": self.builder.add,
+                    "-": self.builder.sub,
+                    "*": self.builder.mul,
+                    "/": self.builder.sdiv,
+                }
                 return ops[node.op](a, b)
-            elif node.op in ('<', '>', '<=', '>=', '==', '!='):
+            elif node.op in ("<", ">", "<=", ">=", "==", "!="):
                 return self.builder.zext(self.builder.icmp_signed(node.op, a, b), i32)
             else:
                 raise NotImplementedError(node.op)
@@ -473,7 +495,7 @@ class CodeGen:
         if isinstance(node, Call):
             callee = node.name
             argsv = [self.codegen(arg) for arg in node.args]
-            if callee == 'print':
+            if callee == "print":
                 # map print(x) to putint(x)
                 return self.builder.call(self.putint_fn, argsv)
             # TODO(1): 允许调用更多外部函数（如 putchard(double) 等）
@@ -487,7 +509,7 @@ class CodeGen:
 
     def _truth(self, val_i32):
         zero = ir.Constant(i32, 0)
-        cmp = self.builder.icmp_signed('!=', val_i32, zero)  # ← 这里用 '!='
+        cmp = self.builder.icmp_signed("!=", val_i32, zero)  # ← 这里用 '!='
         return cmp
 
 
@@ -570,14 +592,16 @@ int main() {
 """
 
 # todo
-'''
+"""
 break / continue
 逻辑运算 && / ||（短路求值）
 多个函数定义 + 调用
-'''
+"""
 
 if __name__ == "__main__":
-    src = DEMO if len(sys.argv) == 1 else open(sys.argv[1], "r", encoding="utf-8").read()
+    src = (
+        DEMO if len(sys.argv) == 1 else open(sys.argv[1], "r", encoding="utf-8").read()
+    )
     rv, ir_text = compile_and_run(src)
     print("------ return value:", rv)
     # Uncomment to inspect IR:

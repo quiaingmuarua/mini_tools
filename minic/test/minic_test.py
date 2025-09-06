@@ -1,9 +1,9 @@
 import os
 
 from minic.driver import build_ir_from_source
-from minic.runtime import emit_executable, run_executable, emit_assembly
+from minic.runtime import emit_assembly, emit_executable, run_executable
 
-demo_src = '''
+demo_src = """
 
 int add(int a, int b) { return a + b; }
 
@@ -22,9 +22,9 @@ int main() {
 }
 
 
-'''
+"""
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     llvm_ir = build_ir_from_source(demo_src, 0)
     print(llvm_ir)
     with open("out/mini_c_add.ll", "w") as f:

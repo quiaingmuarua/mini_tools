@@ -19,31 +19,32 @@ ECDH（椭圆曲线迪菲-赫尔曼密钥交换）完整实现
 
 # 素数域 p：定义椭圆曲线所在的有限域 F_p
 # P-256 使用的是一个特殊的素数，形式为 2^256 - 2^224 + 2^192 + 2^96 - 1
-p = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff
+p = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFF
 
 # 椭圆曲线方程: y^2 = x^3 + a*x + b (mod p)
 # P-256 曲线的参数 a 和 b
 
 # 参数 a = -3 mod p（等价于 p-3）
 # 选择 a=-3 是为了优化点加法运算的性能
-a = 0xffffffff00000001000000000000000000000000fffffffffffffffffffffffc  # 即 -3 mod p
+a = 0xFFFFFFFF00000001000000000000000000000000FFFFFFFFFFFFFFFFFFFFFFFC  # 即 -3 mod p
 
 # 参数 b：曲线的另一个定义参数，这个值是随机选择的
-b = 0x5ac635d8aa3a93e7b3ebbd55769886bc651d06b0cc53b0f63bce3c3e27d2604b
+b = 0x5AC635D8AA3A93E7B3EBBD55769886BC651D06B0CC53B0F63BCE3C3E27D2604B
 
 # 基点 G = (Gx, Gy)：椭圆曲线的生成元
 # 所有公钥都是基点 G 的标量倍数：公钥 = 私钥 × G
-Gx = 0x6b17d1f2e12c4247f8bce6e563a440f277037d812deb33a0f4a13945d898c296
-Gy = 0x4fe342e2fe1a7f9b8ee7eb4a7c0f9e162bce33576b315ececbb6406837bf51f5
+Gx = 0x6B17D1F2E12C4247F8BCE6E563A440F277037D812DEB33A0F4A13945D898C296
+Gy = 0x4FE342E2FE1A7F9B8EE7EB4A7C0F9E162BCE33576B315ECECBB6406837BF51F5
 G = (Gx, Gy)
 
 # 基点的阶 n：满足 n × G = O（无穷远点）的最小正整数
 # 这也是私钥的取值范围 [1, n-1]
 # P-256 的余因子 h=1，表示曲线上所有点都在主子群中
-n = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+n = 0xFFFFFFFF00000000FFFFFFFFFFFFFFFFBCE6FAADA7179E84F3B9CAC2FC632551
 
 
 # ==================== 有限域运算函数 ====================
+
 
 def fadd(x, y):
     """有限域加法：(x + y) mod p"""
@@ -124,8 +125,10 @@ def point_add(P1, P2):
         P1 + P2 的结果点
     """
     # 单位元性质：P + O = O + P = P
-    if P1 is None: return P2
-    if P2 is None: return P1
+    if P1 is None:
+        return P2
+    if P2 is None:
+        return P1
 
     x1, y1 = P1
     x2, y2 = P2
@@ -294,12 +297,15 @@ def ecdhe_shared(my_sk, peer_pk):
     xS, _ = S
 
     # 转换为 32 字节大端序格式，符合标准约定
-    return xS.to_bytes(32, 'big')
+    return xS.to_bytes(32, "big")
 
 
 # ==================== 密钥派生函数 HKDF ====================
 
-def hkdf_sha256(ikm: bytes, salt: bytes = b"", info: bytes = b"", length: int = 32) -> bytes:
+
+def hkdf_sha256(
+    ikm: bytes, salt: bytes = b"", info: bytes = b"", length: int = 32
+) -> bytes:
     """
     HMAC-based Key Derivation Function (HKDF) - RFC 5869
 
@@ -345,6 +351,7 @@ def hkdf_sha256(ikm: bytes, salt: bytes = b"", info: bytes = b"", length: int = 
 
 
 # ==================== SEC1 公钥编码标准 ====================
+
 
 def encode_point(P, compressed=True):
     """

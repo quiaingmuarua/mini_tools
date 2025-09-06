@@ -1,6 +1,6 @@
 # tiny_vm_static.py
 from dataclasses import dataclass
-from typing import List, Dict, Optional, Any, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 # ---------- Bytecode opcodes ----------
 LOAD_LOCAL = "LOAD_LOCAL"  # push local[slot]
@@ -90,19 +90,19 @@ class VM:
             print(f"ip={f.ip - 1:<2} op={op} arg={arg if arg else ''}")
 
         if op == LOAD_LOCAL:
-            idx = arg[0];
+            idx = arg[0]
             f.stack.append(f.locals[idx])
 
         elif op == STORE_LOCAL:
-            idx = arg[0];
+            idx = arg[0]
             f.locals[idx] = f.stack.pop()
 
         elif op == PUSH_CONST:
             f.stack.append(arg[0])
 
         elif op == IADD:
-            b = f.stack.pop();
-            a = f.stack.pop();
+            b = f.stack.pop()
+            a = f.stack.pop()
             f.stack.append(a + b)
 
         elif op == CALL_VIRT:

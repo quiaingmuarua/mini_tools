@@ -2,12 +2,18 @@
 import argparse
 import pathlib
 import sys
+from parser import (  # 如果你没暴露 ParseError，改成: "from parser import Parser"
+    ParseError,
+    Parser,
+)
 
 from codegen import Codegen
 from lexer import Lexer
-from parser import Parser, ParseError  # 如果你没暴露 ParseError，改成: "from parser import Parser"
 from runtime import (
-    jit_run, emit_executable, optimize_ir, emit_assembly,
+    emit_assembly,
+    emit_executable,
+    jit_run,
+    optimize_ir,
 )
 
 
@@ -21,14 +27,27 @@ def build_ir_from_source(src: str, opt_level: int) -> str:
 
 
 def main(argv=None) -> int:
-    ap = argparse.ArgumentParser(prog="minicc", description="mini-C compiler (Python + llvmlite)")
+    ap = argparse.ArgumentParser(
+        prog="minicc", description="mini-C compiler (Python + llvmlite)"
+    )
     ap.add_argument("file", help="source file (.mc). Use '-' to read from stdin")
-    ap.add_argument("-O", "--opt", type=int, default=0, choices=(0, 1, 2, 3), help="opt level (default: 0)")
+    ap.add_argument(
+        "-O",
+        "--opt",
+        type=int,
+        default=0,
+        choices=(0, 1, 2, 3),
+        help="opt level (default: 0)",
+    )
     ap.add_argument("-o", "--output", default="a.out", help="output (exe or .s)")
     g = ap.add_mutually_exclusive_group()
     g.add_argument("--emit-llvm", action="store_true", help="print LLVM IR and exit")
-    g.add_argument("-S", "--emit-asm", action="store_true", help="emit assembly (.s) and exit")
-    g.add_argument("--run", action="store_true", help="JIT run main() and print exit code")
+    g.add_argument(
+        "-S", "--emit-asm", action="store_true", help="emit assembly (.s) and exit"
+    )
+    g.add_argument(
+        "--run", action="store_true", help="JIT run main() and print exit code"
+    )
     args = ap.parse_args(argv)
 
     # 读源码

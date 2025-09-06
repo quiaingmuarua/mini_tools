@@ -1,24 +1,29 @@
-from llvmlite import ir, binding
+from llvmlite import binding, ir
 
-from runtime import declare_printf, intern_cstr
+from minic.runtime import declare_printf, intern_cstr
 
 
 # ---------- 1) AST ----------
-class Node: pass
+class Node:
+    pass
 
 
-class Expr(Node): pass
+class Expr(Node):
+    pass
 
 
-class Stmt(Node): pass
+class Stmt(Node):
+    pass
 
 
 class IntLit(Expr):  # 常量
-    def __init__(self, value: int): self.value = value
+    def __init__(self, value: int):
+        self.value = value
 
 
 class Var(Expr):  # 变量读
-    def __init__(self, name: str): self.name = name
+    def __init__(self, name: str):
+        self.name = name
 
 
 class BinaryOp(Expr):  # + - * /
@@ -32,19 +37,23 @@ class Compare(Expr):  # == != < <= > >=
 
 
 class VarDecl(Stmt):  # int x = init;
-    def __init__(self, name: str, init: Expr): self.name, self.init = name, init
+    def __init__(self, name: str, init: Expr):
+        self.name, self.init = name, init
 
 
 class Assign(Stmt):  # x = expr;
-    def __init__(self, name: str, expr: Expr): self.name, self.expr = name, expr
+    def __init__(self, name: str, expr: Expr):
+        self.name, self.expr = name, expr
 
 
 class Return(Stmt):  # return expr;
-    def __init__(self, expr: Expr): self.expr = expr
+    def __init__(self, expr: Expr):
+        self.expr = expr
 
 
 class Block(Stmt):  # { ... }
-    def __init__(self, stmts): self.stmts = stmts
+    def __init__(self, stmts):
+        self.stmts = stmts
 
 
 class IfElse(Stmt):  # if (cond) then_block else else_block
@@ -87,8 +96,8 @@ class UnaryOp(Expr):
 
 # ---------- 2) Codegen ----------
 i32 = ir.IntType(32)
-binding.initialize();
-binding.initialize_native_target();
+binding.initialize()
+binding.initialize_native_target()
 binding.initialize_native_asmprinter()
 
 
@@ -123,16 +132,20 @@ class Codegen:
         if isinstance(node, BinaryOp):
             lv = self.codegen_expr(node.lhs)
             rv = self.codegen_expr(node.rhs)
-            if node.op == '+':  return self.builder.add(lv, rv, name="addtmp")
-            if node.op == '-':  return self.builder.sub(lv, rv, name="subtmp")
-            if node.op == '*':  return self.builder.mul(lv, rv, name="multmp")
-            if node.op == '/':  return self.builder.sdiv(lv, rv, name="divtmp")
+            if node.op == "+":
+                return self.builder.add(lv, rv, name="addtmp")
+            if node.op == "-":
+                return self.builder.sub(lv, rv, name="subtmp")
+            if node.op == "*":
+                return self.builder.mul(lv, rv, name="multmp")
+            if node.op == "/":
+                return self.builder.sdiv(lv, rv, name="divtmp")
             raise ValueError(f"unsupported op {node.op}")
         if isinstance(node, Compare):
             lv = self.codegen_expr(node.lhs)
             rv = self.codegen_expr(node.rhs)
             # i1 返回值（布尔）
-            if node.op in ('==', '!=', '<', '<=', '>', '>='):
+            if node.op in ("==", "!=", "<", "<=", ">", ">="):
                 return self.builder.icmp_signed(node.op, lv, rv, name="cmptmp")
             raise ValueError(f"unsupported cmp {node.op}")
         if isinstance(node, Call):
@@ -142,7 +155,7 @@ class Codegen:
             return self.builder.call(func, args, name="calltmp")
         if isinstance(node, UnaryOp):
             v = self.codegen_expr(node.expr)
-            if node.op == '-':
+            if node.op == "-":
                 return self.builder.sub(ir.Constant(i32, 0), v, name="negtmp")
             raise ValueError(f"unsupported unary {node.op}")
         raise TypeError(f"unknown expr {node}")

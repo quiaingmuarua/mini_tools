@@ -2,7 +2,13 @@ import os
 
 from minic.codegen import *
 from minic.codegen import Block
-from minic.runtime import optimize_ir, emit_executable, run_executable, emit_assembly, jit_run
+from minic.runtime import (
+    emit_assembly,
+    emit_executable,
+    jit_run,
+    optimize_ir,
+    run_executable,
+)
 
 
 def if_statement_expr():
@@ -13,51 +19,63 @@ def if_statement_expr():
     #   if (x == 0) { y = 1; } else { y = 2; }
     #   return y;
     # }
-    return Block([
-        VarDecl("x", IntLit(2)),
-        VarDecl("y", IntLit(0)),
-        IfElse(
-            Compare("==", Var("x"), IntLit(0)),
-            then_blk=Block([Assign("y", IntLit(1))]),
-            else_blk=Block([Assign("y", IntLit(2))]),
-        ),
-        Return(Var("y")),
-    ])
+    return Block(
+        [
+            VarDecl("x", IntLit(2)),
+            VarDecl("y", IntLit(0)),
+            IfElse(
+                Compare("==", Var("x"), IntLit(0)),
+                then_blk=Block([Assign("y", IntLit(1))]),
+                else_blk=Block([Assign("y", IntLit(2))]),
+            ),
+            Return(Var("y")),
+        ]
+    )
 
 
 def while_statement_expr():
-    '''
-    int main() {
-  int x = 3;
-  while (x > 0) {
-    x = x - 1;
-  }
-  return x;
-}
-    '''
-    return Block([
-        VarDecl("x", IntLit(3)),
-        While(
-            Compare(">", Var("x"), IntLit(0)),
-            Block([Assign("x", BinaryOp("-", Var("x"), IntLit(1)))])
-        ),
-        Return(Var("x")),
-    ])
+    """
+        int main() {
+      int x = 3;
+      while (x > 0) {
+        x = x - 1;
+      }
+      return x;
+    }
+    """
+    return Block(
+        [
+            VarDecl("x", IntLit(3)),
+            While(
+                Compare(">", Var("x"), IntLit(0)),
+                Block([Assign("x", BinaryOp("-", Var("x"), IntLit(1)))]),
+            ),
+            Return(Var("x")),
+        ]
+    )
 
 
 def function_statement_expr():
-    return Program([
-        Function("add", ["a", "b"], Block([
-            Return(BinaryOp("+", Var("a"), Var("b")))
-        ])),
-        Function("main", [], Block([
-            VarDecl("x", IntLit(2)),
-            VarDecl("y", IntLit(3)),
-            VarDecl("z", Call("add", [Var("x"), Var("y")])),
-            PrintI32(Var("z")),  # ← 打印 z
-            Return(Var("z")),
-        ]))
-    ])
+    return Program(
+        [
+            Function(
+                "add", ["a", "b"], Block([Return(BinaryOp("+", Var("a"), Var("b")))])
+            ),
+            Function(
+                "main",
+                [],
+                Block(
+                    [
+                        VarDecl("x", IntLit(2)),
+                        VarDecl("y", IntLit(3)),
+                        VarDecl("z", Call("add", [Var("x"), Var("y")])),
+                        PrintI32(Var("z")),  # ← 打印 z
+                        Return(Var("z")),
+                    ]
+                ),
+            ),
+        ]
+    )
 
 
 def block_demo():

@@ -25,16 +25,39 @@ ELFDATA2LSB = 1
 ELFDATA2MSB = 2
 
 PT_TYPES = {
-    0: "NULL", 1: "LOAD", 2: "DYNAMIC", 3: "INTERP", 4: "NOTE", 5: "SHLIB",
-    6: "PHDR", 7: "TLS", 0x6474e550: "GNU_EH_FRAME", 0x6474e551: "GNU_STACK",
-    0x6474e552: "GNU_RELRO", 0x6474e553: "GNU_PROPERTY"
+    0: "NULL",
+    1: "LOAD",
+    2: "DYNAMIC",
+    3: "INTERP",
+    4: "NOTE",
+    5: "SHLIB",
+    6: "PHDR",
+    7: "TLS",
+    0x6474E550: "GNU_EH_FRAME",
+    0x6474E551: "GNU_STACK",
+    0x6474E552: "GNU_RELRO",
+    0x6474E553: "GNU_PROPERTY",
 }
 
 SHT_TYPES = {
-    0: "NULL", 1: "PROGBITS", 2: "SYMTAB", 3: "STRTAB", 4: "RELA", 5: "HASH",
-    6: "DYNAMIC", 7: "NOTE", 8: "NOBITS", 9: "REL", 10: "SHLIB", 11: "DYNSYM",
-    14: "INIT_ARRAY", 15: "FINI_ARRAY", 17: "GNU_HASH", 0x6ffffff6: "GNU_VERDEF",
-    0x6fffffff: "GNU_VERNEED", 0x6ffffffe: "GNU_VERSYM"
+    0: "NULL",
+    1: "PROGBITS",
+    2: "SYMTAB",
+    3: "STRTAB",
+    4: "RELA",
+    5: "HASH",
+    6: "DYNAMIC",
+    7: "NOTE",
+    8: "NOBITS",
+    9: "REL",
+    10: "SHLIB",
+    11: "DYNSYM",
+    14: "INIT_ARRAY",
+    15: "FINI_ARRAY",
+    17: "GNU_HASH",
+    0x6FFFFFF6: "GNU_VERDEF",
+    0x6FFFFFFF: "GNU_VERNEED",
+    0x6FFFFFFE: "GNU_VERSYM",
 }
 
 ST_BIND = {0: "LOCAL", 1: "GLOBAL", 2: "WEAK"}
@@ -42,7 +65,12 @@ ST_TYPE = {0: "NOTYPE", 1: "OBJECT", 2: "FUNC", 3: "SECTION", 4: "FILE", 10: "LO
 
 E_TYPE = {0: "NONE", 1: "REL", 2: "EXEC", 3: "DYN", 4: "CORE"}
 E_MACHINE = {
-    0: "NoMachine", 3: "x86", 40: "ARM", 62: "x86-64", 183: "AArch64", 243: "RISC-V"
+    0: "NoMachine",
+    3: "x86",
+    40: "ARM",
+    62: "x86-64",
+    183: "AArch64",
+    243: "RISC-V",
 }
 
 
@@ -102,18 +130,38 @@ class ELFFile:
         self.f.seek(16)
         if self.ei_class == ELFCLASS32:
             fmt = self.end + "HHIIIIIHHHHHH"
-            (self.e_type, self.e_machine, self.e_version,
-             self.e_entry, self.e_phoff, self.e_shoff, self.e_flags,
-             self.e_ehsize, self.e_phentsize, self.e_phnum,
-             self.e_shentsize, self.e_shnum, self.e_shstrndx) = struct.unpack(fmt,
-                                                                              read_exact(self.f, struct.calcsize(fmt)))
+            (
+                self.e_type,
+                self.e_machine,
+                self.e_version,
+                self.e_entry,
+                self.e_phoff,
+                self.e_shoff,
+                self.e_flags,
+                self.e_ehsize,
+                self.e_phentsize,
+                self.e_phnum,
+                self.e_shentsize,
+                self.e_shnum,
+                self.e_shstrndx,
+            ) = struct.unpack(fmt, read_exact(self.f, struct.calcsize(fmt)))
         elif self.ei_class == ELFCLASS64:
             fmt = self.end + "HHIQQQIHHHHHH"
-            (self.e_type, self.e_machine, self.e_version,
-             self.e_entry, self.e_phoff, self.e_shoff, self.e_flags,
-             self.e_ehsize, self.e_phentsize, self.e_phnum,
-             self.e_shentsize, self.e_shnum, self.e_shstrndx) = struct.unpack(fmt,
-                                                                              read_exact(self.f, struct.calcsize(fmt)))
+            (
+                self.e_type,
+                self.e_machine,
+                self.e_version,
+                self.e_entry,
+                self.e_phoff,
+                self.e_shoff,
+                self.e_flags,
+                self.e_ehsize,
+                self.e_phentsize,
+                self.e_phnum,
+                self.e_shentsize,
+                self.e_shnum,
+                self.e_shstrndx,
+            ) = struct.unpack(fmt, read_exact(self.f, struct.calcsize(fmt)))
         else:
             raise ValueError(f"Unknown EI_CLASS: {self.ei_class}")
 
@@ -130,9 +178,27 @@ class ELFFile:
         for _ in range(self.e_phnum):
             vals = struct.unpack(fmt, read_exact(self.f, size))
             if self.ei_class == ELFCLASS32:
-                keys = ("p_type", "p_offset", "p_vaddr", "p_paddr", "p_filesz", "p_memsz", "p_flags", "p_align")
+                keys = (
+                    "p_type",
+                    "p_offset",
+                    "p_vaddr",
+                    "p_paddr",
+                    "p_filesz",
+                    "p_memsz",
+                    "p_flags",
+                    "p_align",
+                )
             else:
-                keys = ("p_type", "p_flags", "p_offset", "p_vaddr", "p_paddr", "p_filesz", "p_memsz", "p_align")
+                keys = (
+                    "p_type",
+                    "p_flags",
+                    "p_offset",
+                    "p_vaddr",
+                    "p_paddr",
+                    "p_filesz",
+                    "p_memsz",
+                    "p_align",
+                )
             self.ph.append(dict(zip(keys, vals)))
 
     def read_section_headers(self):
@@ -148,11 +214,31 @@ class ELFFile:
         for _ in range(self.e_shnum):
             vals = struct.unpack(fmt, read_exact(self.f, size))
             if self.ei_class == ELFCLASS32:
-                keys = ("sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link", "sh_info",
-                        "sh_addralign", "sh_entsize")
+                keys = (
+                    "sh_name",
+                    "sh_type",
+                    "sh_flags",
+                    "sh_addr",
+                    "sh_offset",
+                    "sh_size",
+                    "sh_link",
+                    "sh_info",
+                    "sh_addralign",
+                    "sh_entsize",
+                )
             else:
-                keys = ("sh_name", "sh_type", "sh_flags", "sh_addr", "sh_offset", "sh_size", "sh_link", "sh_info",
-                        "sh_addralign", "sh_entsize")
+                keys = (
+                    "sh_name",
+                    "sh_type",
+                    "sh_flags",
+                    "sh_addr",
+                    "sh_offset",
+                    "sh_size",
+                    "sh_link",
+                    "sh_info",
+                    "sh_addralign",
+                    "sh_entsize",
+                )
             self.sh.append(dict(zip(keys, vals)))
 
     def load_string_tables(self):
@@ -160,10 +246,12 @@ class ELFFile:
         self.strtabs = {}  # index -> bytes
         if self.sh and 0 <= self.e_shstrndx < len(self.sh):
             sh = self.sh[self.e_shstrndx]
-            self.shstrtab = self.data[sh["sh_offset"]: sh["sh_offset"] + sh["sh_size"]]
+            self.shstrtab = self.data[sh["sh_offset"] : sh["sh_offset"] + sh["sh_size"]]
         for idx, sh in enumerate(self.sh):
             if sh["sh_type"] == 3:  # STRTAB
-                self.strtabs[idx] = self.data[sh["sh_offset"]: sh["sh_offset"] + sh["sh_size"]]
+                self.strtabs[idx] = self.data[
+                    sh["sh_offset"] : sh["sh_offset"] + sh["sh_size"]
+                ]
 
     def section_name(self, idx: int) -> str:
         if not self.sh:
@@ -174,15 +262,23 @@ class ELFFile:
     def dump_header(self):
         print("ELF Header:")
         print(f"  Magic:   7f 45 4c 46")
-        klass = {ELFCLASS32: 'ELF32', ELFCLASS64: 'ELF64'}.get(self.ei_class, f'Unknown({self.ei_class})')
-        data = {ELFDATA2LSB: '2\'s complement, little endian', ELFDATA2MSB: '2\'s complement, big endian'}.get(
-            self.ei_data, f'Unknown({self.ei_data})')
+        klass = {ELFCLASS32: "ELF32", ELFCLASS64: "ELF64"}.get(
+            self.ei_class, f"Unknown({self.ei_class})"
+        )
+        data = {
+            ELFDATA2LSB: "2's complement, little endian",
+            ELFDATA2MSB: "2's complement, big endian",
+        }.get(self.ei_data, f"Unknown({self.ei_data})")
         print(f"  Class:                             {klass}")
         print(f"  Data:                              {data}")
         print(f"  Version:                           {self.ei_version}")
         print(f"  OS/ABI:                            {self.ei_osabi}")
-        print(f"  Type:                              {E_TYPE.get(self.e_type, self.e_type)}")
-        print(f"  Machine:                           {E_MACHINE.get(self.e_machine, self.e_machine)}")
+        print(
+            f"  Type:                              {E_TYPE.get(self.e_type, self.e_type)}"
+        )
+        print(
+            f"  Machine:                           {E_MACHINE.get(self.e_machine, self.e_machine)}"
+        )
         print(f"  Entry point address:               0x{self.e_entry:x}")
         print(f"  Start of program headers:          {self.e_phoff} (bytes into file)")
         print(f"  Start of section headers:          {self.e_shoff} (bytes into file)")
@@ -201,29 +297,35 @@ class ELFFile:
         print("Program Headers:")
         for i, p in enumerate(self.ph):
             ptype = PT_TYPES.get(p["p_type"], f"0x{p['p_type']:x}")
-            print(f"  Type {ptype:>12} off 0x{p['p_offset']:x} vaddr 0x{p['p_vaddr']:x} paddr 0x{p['p_paddr']:x}")
             print(
-                f"       filesz 0x{p['p_filesz']:x} memsz 0x{p['p_memsz']:x} flags 0x{p['p_flags']:x} align 0x{p['p_align']:x}")
+                f"  Type {ptype:>12} off 0x{p['p_offset']:x} vaddr 0x{p['p_vaddr']:x} paddr 0x{p['p_paddr']:x}"
+            )
+            print(
+                f"       filesz 0x{p['p_filesz']:x} memsz 0x{p['p_memsz']:x} flags 0x{p['p_flags']:x} align 0x{p['p_align']:x}"
+            )
 
     def dump_section_headers(self):
         if not self.sh:
             print("No section headers.")
             return
         print("Section Headers:")
-        print("  [Nr] Name              Type            Addr             Off      Size     ES Flg Lk Inf Al")
+        print(
+            "  [Nr] Name              Type            Addr             Off      Size     ES Flg Lk Inf Al"
+        )
         for i, sh in enumerate(self.sh):
             name = self.section_name(i)
             shtype = SHT_TYPES.get(sh["sh_type"], f"0x{sh['sh_type']:x}")
             print(
                 f"  [{i:2}] {name:17.17} {shtype:14.14} {sh['sh_addr']:016x} {sh['sh_offset']:08x} {sh['sh_size']:08x} {sh['sh_entsize']:02x} "
-                f"{sh['sh_flags']:03x} {sh['sh_link']:2} {sh['sh_info']:3} {sh['sh_addralign']:2}")
+                f"{sh['sh_flags']:03x} {sh['sh_link']:2} {sh['sh_info']:3} {sh['sh_addralign']:2}"
+            )
 
     def iter_symbols(self):
         # returns (table_name, list_of_symbols)
         for idx, sh in enumerate(self.sh):
             if sh["sh_type"] not in (2, 11):  # SYMTAB, DYNSYM
                 continue
-            tab_bytes = self.data[sh["sh_offset"]: sh["sh_offset"] + sh["sh_size"]]
+            tab_bytes = self.data[sh["sh_offset"] : sh["sh_offset"] + sh["sh_size"]]
             entsize = sh["sh_entsize"]
             if entsize == 0:
                 # infer entsize by class
@@ -232,23 +334,29 @@ class ELFFile:
             syms = []
             off = 0
             while off + entsize <= len(tab_bytes):
-                ent = tab_bytes[off:off + entsize]
+                ent = tab_bytes[off : off + entsize]
                 off += entsize
                 if self.ei_class == ELFCLASS32:
-                    st_name, st_value, st_size, st_info, st_other, st_shndx = struct.unpack(
-                        self.end + "IIIBBH", ent
+                    st_name, st_value, st_size, st_info, st_other, st_shndx = (
+                        struct.unpack(self.end + "IIIBBH", ent)
                     )
                 else:
-                    st_name, st_info, st_other, st_shndx, st_value, st_size = struct.unpack(
-                        self.end + "IBBHQQ", ent
+                    st_name, st_info, st_other, st_shndx, st_value, st_size = (
+                        struct.unpack(self.end + "IBBHQQ", ent)
                     )
                 bind = ST_BIND.get(st_info >> 4, str(st_info >> 4))
                 typ = ST_TYPE.get(st_info & 0xF, str(st_info & 0xF))
                 name = str_from_table(strtab, st_name)
-                syms.append({
-                    "name": name, "value": st_value, "size": st_size,
-                    "bind": bind, "type": typ, "shndx": st_shndx
-                })
+                syms.append(
+                    {
+                        "name": name,
+                        "value": st_value,
+                        "size": st_size,
+                        "bind": bind,
+                        "type": typ,
+                        "shndx": st_shndx,
+                    }
+                )
             yield (self.section_name(idx), syms)
 
     def dump_symbols(self):
@@ -258,8 +366,12 @@ class ELFFile:
             print(f"Symbol table '{tabname}': {len(syms)} entries")
             print("   Num:    Value             Size Type    Bind   Ndx Name")
             for i, s in enumerate(syms):
-                ndx = f"{s['shndx']}" if isinstance(s['shndx'], int) else str(s['shndx'])
-                print(f"  {i:5}: {s['value']:016x} {s['size']:5} {s['type']:<7} {s['bind']:<6} {ndx:>3} {s['name']}")
+                ndx = (
+                    f"{s['shndx']}" if isinstance(s["shndx"], int) else str(s["shndx"])
+                )
+                print(
+                    f"  {i:5}: {s['value']:016x} {s['size']:5} {s['type']:<7} {s['bind']:<6} {ndx:>3} {s['name']}"
+                )
         if not printed_any:
             print("No symbol tables found.")
 
@@ -268,14 +380,34 @@ class ELFFile:
 def main():
     ap = argparse.ArgumentParser(description="A tiny readelf-like parser.")
     ap.add_argument("file", help="ELF file path")
-    ap.add_argument("-hH", "--elf-header", dest="show_header", action="store_true",
-                    help="Display the ELF file header")
-    ap.add_argument("-l", "--program-headers", dest="show_ph", action="store_true",
-                    help="Display the program headers")
-    ap.add_argument("-S", "--section-headers", dest="show_sh", action="store_true",
-                    help="Display the section headers")
-    ap.add_argument("-s", "--syms", dest="show_syms", action="store_true",
-                    help="Display the symbol table")
+    ap.add_argument(
+        "-hH",
+        "--elf-header",
+        dest="show_header",
+        action="store_true",
+        help="Display the ELF file header",
+    )
+    ap.add_argument(
+        "-l",
+        "--program-headers",
+        dest="show_ph",
+        action="store_true",
+        help="Display the program headers",
+    )
+    ap.add_argument(
+        "-S",
+        "--section-headers",
+        dest="show_sh",
+        action="store_true",
+        help="Display the section headers",
+    )
+    ap.add_argument(
+        "-s",
+        "--syms",
+        dest="show_syms",
+        action="store_true",
+        help="Display the symbol table",
+    )
 
     args = ap.parse_args()
 
@@ -305,8 +437,13 @@ def main():
         elf.dump_symbols()
 
 
-def parse_elf(file_path: str, show_header: bool = False, show_ph: bool = False,
-              show_sh: bool = False, show_syms: bool = False):
+def parse_elf(
+    file_path: str,
+    show_header: bool = False,
+    show_ph: bool = False,
+    show_sh: bool = False,
+    show_syms: bool = False,
+):
     """
     直接解析ELF文件的函数版本
 
@@ -346,4 +483,10 @@ def parse_elf(file_path: str, show_header: bool = False, show_ph: bool = False,
 
 
 if __name__ == "__main__":
-    parse_elf(file_path="../lib/libollvm_demo.so", show_header=True, show_ph=True, show_sh=True, show_syms=True)
+    parse_elf(
+        file_path="../lib/libollvm_demo.so",
+        show_header=True,
+        show_ph=True,
+        show_sh=True,
+        show_syms=True,
+    )
