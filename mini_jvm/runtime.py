@@ -28,7 +28,7 @@ class ClassDef:
 
     # virtual resolve
     def resolve_method(self, name: str) -> Method:
-        c = self
+        c: Optional[ClassDef] = self
         while c:
             if name in c.methods:
                 return c.methods[name]
@@ -119,9 +119,9 @@ class VM:
         elif op == CALL_STATIC:
             # 形如 (class_def, method_name, n_args)
             cls: ClassDef = arg[0]
-            method_name: str = arg[1]
+            static_method_name: str = arg[1]
             n_args: int = arg[2]
-            target = cls.resolve_static(method_name)  # 静态解析（不看接收者类型）
+            target = cls.resolve_static(static_method_name)  # 静态解析（不看接收者类型）
             # 从操作数栈弹 n_args（注意参数顺序）
             args = [f.stack.pop() for _ in range(n_args)][::-1]
             self.push_frame(target, args)
@@ -158,11 +158,11 @@ class VM:
 
 # ---------- Build classes ----------
 # Animal.sound() -> 1
-Animal_sound = Method("sound", [(PUSH_CONST, 1), (RETURN,)], max_locals=1)
+Animal_sound = Method("sound", [(PUSH_CONST, 1), (RETURN, None)], max_locals=1)
 Animal = ClassDef("Animal", None, methods={"sound": Animal_sound}, static_methods={})
 
 # Dog overrides sound() -> 2
-Dog_sound = Method("sound", [(PUSH_CONST, 2), (RETURN,)], max_locals=1)
+Dog_sound = Method("sound", [(PUSH_CONST, 2), (RETURN, None)], max_locals=1)
 Dog = ClassDef("Dog", Animal, methods={"sound": Dog_sound}, static_methods={})
 
 # Util.add(x, y) is static -> return x+y
@@ -171,8 +171,8 @@ Util_add = Method(
     [
         (LOAD_LOCAL, 0),  # x
         (LOAD_LOCAL, 1),  # y
-        (IADD,),  # x+y
-        (RETURN,),
+        (IADD, None),  # x+y
+        (RETURN, None),
     ],
     max_locals=2,  # 两个形参，无 this
 )
@@ -184,7 +184,7 @@ Main_call = Method(
     [
         (LOAD_LOCAL, 0),  # a
         (CALL_VIRT, "sound"),  # 虚调用
-        (RETURN,),
+        (RETURN, None),
     ],
     max_locals=1,
 )
@@ -195,8 +195,8 @@ Main_staticDemo = Method(
     [
         (PUSH_CONST, 7),
         (PUSH_CONST, 5),
-        (CALL_STATIC, Util, "add", 2),  # 静态调用，弹 2 个实参
-        (RETURN,),
+        (CALL_STATIC, (Util, "add", 2)),  # 静态调用，弹 2 个实参
+        (RETURN, None),
     ],
     max_locals=0,  # 无局部（这里全用常量入栈）
 )

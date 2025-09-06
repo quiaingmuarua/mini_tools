@@ -1,7 +1,7 @@
 # -------- Parser (recursive descent) --------
-from codegen import *
-from lexer import *
-from runtime import *
+from minic.codegen import *
+from minic.lexer import *
+from minic.runtime import *
 
 
 class ParseError(Exception):
@@ -94,7 +94,7 @@ class Parser:
             cond = self.parse_expr()
             self._eat(Kind.RPAREN)
             then_blk = self.parse_stmt()
-            else_blk = Block([])
+            else_blk: Stmt = Block([])
             if self._match(Kind.KW_ELSE):
                 else_blk = self.parse_stmt()
             return IfElse(
@@ -196,14 +196,6 @@ class Parser:
             f"unexpected token in primary: {self.cur.kind.name} at {self.cur.line}:{self.cur.col}"
         )
 
-    def parse_multiplicative(self):
-        node = self.parse_unary()
-        while self.cur.kind in (Kind.STAR, Kind.SLASH):
-            op = "*" if self.cur.kind == Kind.STAR else "/"
-            self._eat(self.cur.kind)
-            rhs = self.parse_unary()
-            node = BinaryOp(op, node, rhs)
-        return node
 
     def parse_unary(self):
         if self.cur.kind == Kind.MINUS:

@@ -75,8 +75,8 @@ E_MACHINE = {
 
 
 # ---- Helpers ----
-def read_exact(f: io.BufferedReader, n: int) -> bytes:
-    b = f.read(n)
+def read_exact(f, n: int) -> bytes:
+    b: bytes = f.read(n)
     if len(b) != n:
         raise EOFError("Unexpected EOF")
     return b

@@ -118,9 +118,24 @@ class Codegen:
         self.alloca_builder = None  # 分配构建器
         self._fmt_int = None  # 缓存 "%d\n" 的全局常量
 
+    @property
+    def safe_builder(self):
+        assert self.builder is not None, "builder must be initialized"
+        return self.builder
+    
+    @property 
+    def safe_alloca_builder(self):
+        assert self.alloca_builder is not None, "alloca_builder must be initialized"
+        return self.alloca_builder
+    
+    @property
+    def safe_fn(self):
+        assert self.fn is not None, "fn must be initialized"
+        return self.fn
+
     def alloca_i32(self, name: str):
         # 在 entry 的跳转之前插入
-        return self.alloca_builder.alloca(i32, name=name)
+        return self.safe_alloca_builder.alloca(i32, name=name)
 
     # ---- expr ----
     def codegen_expr(self, node: Expr):
@@ -128,35 +143,35 @@ class Codegen:
             return ir.Constant(i32, node.value)
         if isinstance(node, Var):
             ptr = self.vars[node.name]
-            return self.builder.load(ptr, name=node.name)
+            return self.safe_builder.load(ptr, name=node.name)
         if isinstance(node, BinaryOp):
             lv = self.codegen_expr(node.lhs)
             rv = self.codegen_expr(node.rhs)
             if node.op == "+":
-                return self.builder.add(lv, rv, name="addtmp")
+                return self.safe_builder.add(lv, rv, name="addtmp")
             if node.op == "-":
-                return self.builder.sub(lv, rv, name="subtmp")
+                return self.safe_builder.sub(lv, rv, name="subtmp")
             if node.op == "*":
-                return self.builder.mul(lv, rv, name="multmp")
+                return self.safe_builder.mul(lv, rv, name="multmp")
             if node.op == "/":
-                return self.builder.sdiv(lv, rv, name="divtmp")
+                return self.safe_builder.sdiv(lv, rv, name="divtmp")
             raise ValueError(f"unsupported op {node.op}")
         if isinstance(node, Compare):
             lv = self.codegen_expr(node.lhs)
             rv = self.codegen_expr(node.rhs)
             # i1 返回值（布尔）
             if node.op in ("==", "!=", "<", "<=", ">", ">="):
-                return self.builder.icmp_signed(node.op, lv, rv, name="cmptmp")
+                return self.safe_builder.icmp_signed(node.op, lv, rv, name="cmptmp")
             raise ValueError(f"unsupported cmp {node.op}")
         if isinstance(node, Call):
             # 处理函数调用
             func = self.funcs[node.name]
             args = [self.codegen_expr(arg) for arg in node.args]
-            return self.builder.call(func, args, name="calltmp")
+            return self.safe_builder.call(func, args, name="calltmp")
         if isinstance(node, UnaryOp):
             v = self.codegen_expr(node.expr)
             if node.op == "-":
-                return self.builder.sub(ir.Constant(i32, 0), v, name="negtmp")
+                return self.safe_builder.sub(ir.Constant(i32, 0), v, name="negtmp")
             raise ValueError(f"unsupported unary {node.op}")
         raise TypeError(f"unknown expr {node}")
 
@@ -165,17 +180,17 @@ class Codegen:
         if isinstance(st, VarDecl):
             ptr = self.alloca_i32(st.name)
             initv = self.codegen_expr(st.init)
-            self.builder.store(initv, ptr)
+            self.safe_builder.store(initv, ptr)
             self.vars[st.name] = ptr
             return
         if isinstance(st, Assign):
             ptr = self.vars[st.name]
             val = self.codegen_expr(st.expr)
-            self.builder.store(val, ptr)
+            self.safe_builder.store(val, ptr)
             return
         if isinstance(st, Return):
             val = self.codegen_expr(st.expr)
-            self.builder.ret(val)
+            self.safe_builder.ret(val)
             return
         if isinstance(st, Block):
             for s in st.stmts:
@@ -184,50 +199,50 @@ class Codegen:
         if isinstance(st, IfElse):
             condv = self.codegen_expr(st.cond)  # i1
 
-            then_bb = self.fn.append_basic_block("then")
-            else_bb = self.fn.append_basic_block("else")
-            merge_bb = self.fn.append_basic_block("merge")
+            then_bb = self.safe_fn.append_basic_block("then")
+            else_bb = self.safe_fn.append_basic_block("else")
+            merge_bb = self.safe_fn.append_basic_block("merge")
 
             # 条件跳转
-            self.builder.cbranch(condv, then_bb, else_bb)
+            self.safe_builder.cbranch(condv, then_bb, else_bb)
 
             # then
-            self.builder.position_at_end(then_bb)
+            self.safe_builder.position_at_end(then_bb)
             self.codegen_stmt(st.then_blk)
-            if self.builder.block.terminator is None:
-                self.builder.branch(merge_bb)
+            if self.safe_builder.block.terminator is None:
+                self.safe_builder.branch(merge_bb)
 
             # else
-            self.builder.position_at_end(else_bb)
+            self.safe_builder.position_at_end(else_bb)
             self.codegen_stmt(st.else_blk)
-            if self.builder.block.terminator is None:
-                self.builder.branch(merge_bb)
+            if self.safe_builder.block.terminator is None:
+                self.safe_builder.branch(merge_bb)
 
             # merge
-            self.builder.position_at_end(merge_bb)
+            self.safe_builder.position_at_end(merge_bb)
             return
         if isinstance(st, While):
             # 基本块：cond -> body -> back_to_cond / after
-            cond_bb = self.fn.append_basic_block("loop.cond")
-            body_bb = self.fn.append_basic_block("loop.body")
-            after_bb = self.fn.append_basic_block("loop.after")
+            cond_bb = self.safe_fn.append_basic_block("loop.cond")
+            body_bb = self.safe_fn.append_basic_block("loop.body")
+            after_bb = self.safe_fn.append_basic_block("loop.after")
 
             # 跳到 cond
-            self.builder.branch(cond_bb)
+            self.safe_builder.branch(cond_bb)
 
             # cond: 计算条件并条件跳转
-            self.builder.position_at_end(cond_bb)
+            self.safe_builder.position_at_end(cond_bb)
             condv = self.codegen_expr(st.cond)  # i1
-            self.builder.cbranch(condv, body_bb, after_bb)
+            self.safe_builder.cbranch(condv, body_bb, after_bb)
 
             # body: 执行循环体，末尾回到 cond
-            self.builder.position_at_end(body_bb)
+            self.safe_builder.position_at_end(body_bb)
             self.codegen_stmt(st.body)
-            if self.builder.block.terminator is None:
-                self.builder.branch(cond_bb)
+            if self.safe_builder.block.terminator is None:
+                self.safe_builder.branch(cond_bb)
 
             # after: 继续往后
-            self.builder.position_at_end(after_bb)
+            self.safe_builder.position_at_end(after_bb)
             return
         if isinstance(st, PrintI32):
             v = self.codegen_expr(st.expr)  # 必须是 i32
@@ -250,30 +265,30 @@ class Codegen:
         self.vars = {}
 
         # 建两个基本块：entry 只放 allocas；跳到 body
-        entry = self.fn.append_basic_block("entry")
-        body = self.fn.append_basic_block("body")
+        entry = self.safe_fn.append_basic_block("entry")
+        body = self.safe_fn.append_basic_block("body")
 
         entry_builder = ir.IRBuilder(entry)
         prologue_br = entry_builder.branch(body)
 
         self.builder = ir.IRBuilder(body)
         self.alloca_builder = ir.IRBuilder(entry)
-        self.alloca_builder.position_before(prologue_br)
+        self.safe_alloca_builder.position_before(prologue_br)
 
         # 形参：为每个参数分配一个 alloca，并把 %arg 值存进去
         for i, pname in enumerate(fn_ast.params):
             ptr = self.alloca_i32(pname)
-            # self.fn.args[i] 就是该参数的 SSA 值
-            self.fn.args[i].name = pname
-            entry_builder.store(self.fn.args[i], ptr)
+            # self.safe_fn.args[i] 就是该参数的 SSA 值
+            self.safe_fn.args[i].name = pname
+            entry_builder.store(self.safe_fn.args[i], ptr)
             self.vars[pname] = ptr
 
         # 生成函数体语句
         self.codegen_stmt(fn_ast.body)
 
         # 安全兜底：若没有 ret，补一个 ret 0（避免 verify 报错）
-        if self.builder.block.terminator is None:
-            self.builder.ret(ir.Constant(i32, 0))
+        if self.safe_builder.block.terminator is None:
+            self.safe_builder.ret(ir.Constant(i32, 0))
 
     def codegen(self, prog: Program) -> str:
         self.declare_prototypes(prog)
@@ -289,22 +304,22 @@ class Codegen:
         self.vars = {}
 
         # 建两个基本块：entry 只放 allocas；跳到 body
-        entry = self.fn.append_basic_block("entry")
-        body = self.fn.append_basic_block("body")
+        entry = self.safe_fn.append_basic_block("entry")
+        body = self.safe_fn.append_basic_block("body")
 
         entry_builder = ir.IRBuilder(entry)
         prologue_br = entry_builder.branch(body)
 
         self.builder = ir.IRBuilder(body)
         self.alloca_builder = ir.IRBuilder(entry)
-        self.alloca_builder.position_before(prologue_br)
+        self.safe_alloca_builder.position_before(prologue_br)
 
         # 生成代码块语句
         self.codegen_stmt(program)
 
         # 安全兜底：若没有 ret，补一个 ret 0（避免 verify 报错）
-        if self.builder.block.terminator is None:
-            self.builder.ret(ir.Constant(i32, 0))
+        if self.safe_builder.block.terminator is None:
+            self.safe_builder.ret(ir.Constant(i32, 0))
 
         return str(self.module)
 
@@ -314,8 +329,8 @@ class Codegen:
             self._fmt_int = intern_cstr(self.module, "%d\n", "fmt_int")
         zero = ir.Constant(ir.IntType(32), 0)
         # 取到全局数组的首元素地址：getelementptr [N x i8], [N x i8]* @fmt_int, i32 0, i32 0
-        fmt_ptr = self.builder.gep(self._fmt_int, [zero, zero], inbounds=True)
-        self.builder.call(printf, [fmt_ptr, val])
+        fmt_ptr = self.safe_builder.gep(self._fmt_int, [zero, zero], inbounds=True)
+        self.safe_builder.call(printf, [fmt_ptr, val])
 
 
 # ---------- 3) Driver ----------

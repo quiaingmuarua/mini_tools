@@ -31,7 +31,8 @@ def jit_run(llvm_ir: str, func: str = "main") -> int:
     engine.finalize_object()
     engine.run_static_constructors()
     addr = engine.get_function_address(func)
-    return ctypes.CFUNCTYPE(ctypes.c_int)(addr)()
+    result: int = ctypes.CFUNCTYPE(ctypes.c_int)(addr)()
+    return result
 
 
 def optimize_ir(llvm_ir: str, level: int = 2) -> str:

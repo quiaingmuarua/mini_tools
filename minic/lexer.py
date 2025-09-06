@@ -113,7 +113,7 @@ class Lexer:
                 continue
             break
 
-    def _read_ident_or_kw(self):
+    def _read_ident_or_kw(self) -> Token:
         start_i, start_col, start_line = self.i, self.col, self.line
         while self._peek().isalnum() or self._peek() == "_":
             self._adv()
@@ -121,7 +121,7 @@ class Lexer:
         kind = KEYWORDS.get(lex, Kind.IDENT)
         return Token(kind, lex, start_line, start_col)
 
-    def _read_number(self):
+    def _read_number(self) -> Token:
         start_i, start_col, start_line = self.i, self.col, self.line
         # 十进制整数
         while self._peek().isdigit():
