@@ -122,12 +122,12 @@ class Codegen:
     def safe_builder(self):
         assert self.builder is not None, "builder must be initialized"
         return self.builder
-    
-    @property 
+
+    @property
     def safe_alloca_builder(self):
         assert self.alloca_builder is not None, "alloca_builder must be initialized"
         return self.alloca_builder
-    
+
     @property
     def safe_fn(self):
         assert self.fn is not None, "fn must be initialized"

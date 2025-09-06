@@ -196,7 +196,6 @@ class Parser:
             f"unexpected token in primary: {self.cur.kind.name} at {self.cur.line}:{self.cur.col}"
         )
 
-
     def parse_unary(self):
         if self.cur.kind == Kind.MINUS:
             self._eat(Kind.MINUS)

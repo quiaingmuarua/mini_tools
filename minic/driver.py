@@ -2,13 +2,13 @@
 import argparse
 import pathlib
 import sys
+
+from minic.codegen import Codegen
+from minic.lexer import Lexer
 from minic.parser import (  # 如果你没暴露 ParseError，改成: "from parser import Parser"
     ParseError,
     Parser,
 )
-
-from minic.codegen import Codegen
-from minic.lexer import Lexer
 from minic.runtime import (
     emit_assembly,
     emit_executable,
