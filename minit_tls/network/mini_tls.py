@@ -1,7 +1,7 @@
-import os
-import struct
 import socket
 import ssl
+import struct
+
 
 def create_client_hello(hostname):
     # TLS 记录层头部：握手协议（0x16），版本 TLS 1.0（0x0301）

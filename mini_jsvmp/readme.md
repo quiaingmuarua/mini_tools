@@ -5,6 +5,7 @@
 ## 🚀 主要特性
 
 ### 核心功能
+
 - **完整的编程语言支持**：变量、函数、闭包、控制流
 - **多级作用域**：词法作用域和闭包环境
 - **函数调用栈**：支持递归和参数传递
@@ -12,6 +13,7 @@
 - **HEX序列化**：字节码可序列化为HEX字符串
 
 ### 语言特性
+
 ```javascript
 // 变量声明
 let x = 42;
@@ -33,6 +35,7 @@ let msg = "Hello " + "World";
 ```
 
 ### VMP保护机制 🛡️
+
 - **指令表乱序（Opcode Permutation）**：每次打包生成随机映射表
 - **流式解码（Stream Decoding）**：运行时实时反映射物理→逻辑操作码
 - **立即数按位点加密（Rolling-by-Offset）**：只加密操作数，基于位置的PRNG
@@ -69,24 +72,25 @@ runHexHardened(protectedHex, builtins);
 
 ## 🔧 指令集
 
-| 操作码 | 功能 | 参数 |
-|--------|------|------|
-| `PUSH_CONST` | 推入常量 | [idx] |
-| `LOAD_VAR` | 加载变量 | [nameIdx] |
-| `STORE_VAR` | 存储变量 | [nameIdx] |
-| `ADD/SUB/MUL/DIV` | 算术运算 | - |
-| `EQ/NE/LT/GT/LE/GE` | 比较运算 | - |
-| `JUMP` | 无条件跳转 | [addr] |
-| `JUMP_IF_FALSE` | 条件跳转 | [addr] |
-| `CALL` | 函数调用 | [argc] |
-| `RET` | 函数返回 | - |
-| `MAKE_CLOS` | 创建闭包 | [funcIndex] |
-| `PRINT` | 打印输出 | - |
-| `HALT` | 程序结束 | - |
+| 操作码                 | 功能    | 参数          |
+|---------------------|-------|-------------|
+| `PUSH_CONST`        | 推入常量  | [idx]       |
+| `LOAD_VAR`          | 加载变量  | [nameIdx]   |
+| `STORE_VAR`         | 存储变量  | [nameIdx]   |
+| `ADD/SUB/MUL/DIV`   | 算术运算  | -           |
+| `EQ/NE/LT/GT/LE/GE` | 比较运算  | -           |
+| `JUMP`              | 无条件跳转 | [addr]      |
+| `JUMP_IF_FALSE`     | 条件跳转  | [addr]      |
+| `CALL`              | 函数调用  | [argc]      |
+| `RET`               | 函数返回  | -           |
+| `MAKE_CLOS`         | 创建闭包  | [funcIndex] |
+| `PRINT`             | 打印输出  | -           |
+| `HALT`              | 程序结束  | -           |
 
 ## 🛡️ VMP保护原理
 
 ### 1. 指令表乱序
+
 ```
 逻辑操作码：[0x01, 0x10, 0x20, ...]
      ↓ 随机映射
@@ -94,6 +98,7 @@ runHexHardened(protectedHex, builtins);
 ```
 
 ### 2. 流式解码
+
 ```javascript
 while (true) {
   const physOp = code[ip++];        // 读取物理操作码
@@ -103,6 +108,7 @@ while (true) {
 ```
 
 ### 3. 立即数按位点加密
+
 ```javascript
 // 加密（打包时）
 function encodeImmediates(code, seed) {
@@ -121,6 +127,7 @@ const readImm1 = () => {
 ```
 
 ### 4. 完整性校验
+
 ```
 数据 = 常量池 + 函数表 + 映射表 + 种子 + 代码
 MAC = simpleMAC(数据)
@@ -130,11 +137,13 @@ MAC = simpleMAC(数据)
 ## 📦 HEX格式规范
 
 ### 普通格式 (v1)
+
 ```
 [常量数量:4B][常量数据...][函数数量:4B][函数数据...][代码长度:4B][代码...]
 ```
 
 ### VMP保护格式 (v3)
+
 ```
 [魔数:VM][版本:03][常量池...][函数表...][映射表长度:1B][映射表...][种子:4B][代码长度:4B][代码...][MAC:4B]
 ```
