@@ -67,7 +67,7 @@ import sys
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from mini_tool.minit_tls.network.mini_ecdhe import (
+from minit_tls.network.mini_ecdhe import (
     # Key generation and ECDHE
     gen_keypair,
     ecdhe_shared,
