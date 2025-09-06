@@ -1,7 +1,9 @@
 import os
 
-from mini_tool.minic.codegen import *
-from mini_tool.minic.runtime import optimize_ir, emit_executable, run_executable, emit_assembly, jit_run
+from minic.codegen import *
+from minic.runtime import optimize_ir, emit_executable, run_executable, emit_assembly, jit_run
+
+from minic.codegen import Block
 
 
 def if_statement_expr():

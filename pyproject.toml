@@ -3,9 +3,9 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "mini-tool"
+name = "mini-tools"
 version = "0.1.0"
-description = "A collection of mini cryptographic tools focusing on TLS and encryption algorithms"
+description = "A comprehensive collection of educational programming tools: compilers, VMs, cryptography, and systems programming"
 readme = "README.md"
 license = {text = "MIT"}
 authors = [
@@ -14,6 +14,7 @@ authors = [
 classifiers = [
     "Development Status :: 3 - Alpha",
     "Intended Audience :: Developers",
+    "Intended Audience :: Education",
     "License :: OSI Approved :: MIT License",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -23,10 +24,20 @@ classifiers = [
     "Programming Language :: Python :: 3.12",
     "Topic :: Security :: Cryptography",
     "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Software Development :: Compilers",
+    "Topic :: Software Development :: Interpreters",
+    "Topic :: System :: Operating System",
+    "Topic :: Education",
 ]
-keywords = ["cryptography", "tls", "ecdhe", "encryption", "mini-tools"]
+keywords = [
+    "compiler", "llvm", "virtual-machine", "jvm", "javascript", 
+    "cryptography", "tls", "ecdhe", "encryption", "elf", "binary-analysis",
+    "educational", "mini-tools"
+]
 requires-python = ">=3.8"
-dependencies = []
+dependencies = [
+    "llvmlite>=0.40.0",  # Required for MiniC LLVM backend
+]
 
 [project.optional-dependencies]
 dev = [
@@ -36,35 +47,64 @@ dev = [
     "isort>=5.12.0",
     "flake8>=6.0.0",
     "mypy>=1.0.0",
+    "bandit>=1.7.0",
+    "safety>=2.0.0",
+    "pre-commit>=3.0.0",
+]
+
+compiler = [
+    "llvmlite>=0.40.0",  # For MiniC compiler
+]
+
+crypto = [
+    # No additional dependencies needed for basic crypto
+]
+
+all = [
+    "llvmlite>=0.40.0",
 ]
 
 [project.urls]
-Homepage = "https://github.com/your-username/mini-tool"
-Issues = "https://github.com/your-username/mini-tool/issues"
-Repository = "https://github.com/your-username/mini-tool.git"
+Homepage = "https://github.com/your-username/mini-tools"
+Issues = "https://github.com/your-username/mini-tools/issues"
+Repository = "https://github.com/your-username/mini-tools.git"
+Documentation = "https://github.com/your-username/mini-tools#readme"
 
 [tool.setuptools.packages.find]
 where = ["."]
-include = ["core*", "example*", "test*"]
+include = [
+    "minic*", 
+    "mini_jvm*", 
+    "minit_tls*", 
+    "mini_linker*"
+]
+exclude = ["minic.test*", "minit_tls.test*"]
 
 [tool.pytest.ini_options]
-testpaths = ["test"]
-python_files = ["test_*.py"]
+testpaths = ["minic/test", "minit_tls/test"]
+python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
 addopts = [
     "--strict-markers",
     "--strict-config",
     "--verbose",
-    "--cov=core",
+    "--cov=minic",
+    "--cov=mini_jvm", 
+    "--cov=minit_tls",
+    "--cov=mini_linker",
     "--cov-report=term-missing",
     "--cov-report=html",
     "--cov-report=xml",
+    "--ignore=minic/test/out",  # Ignore compiled outputs
 ]
 markers = [
     "slow: marks tests as slow (deselect with '-m \"not slow\"')",
     "unit: marks tests as unit tests",
     "integration: marks tests as integration tests",
+    "compiler: marks tests as compiler-specific tests",
+    "crypto: marks tests as cryptography tests",
+    "vm: marks tests as virtual machine tests",
 ]
 
 [tool.black]
@@ -85,23 +125,41 @@ extend-exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 88
-known_first_party = ["core", "example", "test"]
+known_first_party = [
+    "minic", 
+    "mini_jvm", 
+    "minit_tls", 
+    "mini_linker"
+]
+known_third_party = ["llvmlite", "pytest"]
 
 [tool.mypy]
 python_version = "3.8"
 warn_return_any = true
 warn_unused_configs = true
-disallow_untyped_defs = true
-disallow_incomplete_defs = true
+disallow_untyped_defs = false  # Relaxed for educational code
+disallow_incomplete_defs = false
 check_untyped_defs = true
-disallow_untyped_decorators = true
+disallow_untyped_decorators = false
 no_implicit_optional = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 warn_no_return = true
 warn_unreachable = true
 strict_equality = true
+ignore_missing_imports = true  # For llvmlite and other deps
+
+# Module-specific overrides
+[[tool.mypy.overrides]]
+module = ["minic.*", "mini_jvm.*", "minit_tls.*", "mini_linker.*"]
+ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
-module = "test.*"
+module = "*.test.*"
 disallow_untyped_defs = false
+ignore_errors = true
+
+# Third-party modules that may not have type stubs
+[[tool.mypy.overrides]]
+module = ["llvmlite.*", "ctypes.*"]
+ignore_missing_imports = true

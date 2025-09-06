@@ -1,0 +1,237 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  test-python:
+    name: Test Python Components
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11", "3.12"]
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+        
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+          
+    - name: Install system dependencies (Ubuntu)
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential clang llvm-dev
+        
+    - name: Install system dependencies (macOS)
+      if: runner.os == 'macOS'
+      run: |
+        brew install llvm
+        echo 'export PATH="/opt/homebrew/opt/llvm/bin:$PATH"' >> $GITHUB_ENV
+        
+    - name: Install system dependencies (Windows)
+      if: runner.os == 'Windows'
+      run: |
+        # Windows LLVM installation
+        choco install llvm
+        
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        
+    - name: Install LLVM Python bindings
+      run: |
+        pip install llvmlite
+        
+    - name: Lint with flake8
+      run: |
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
+        
+    - name: Format check with black
+      run: |
+        black --check --diff .
+        
+    - name: Import sorting check with isort
+      run: |
+        isort --check-only --diff .
+        
+    - name: Type checking with mypy
+      run: |
+        mypy minic minit_tls mini_jvm mini_linker --ignore-missing-imports
+        
+    - name: Security check with bandit
+      run: |
+        bandit -r . -f json || true
+        
+    - name: Test with pytest
+      run: |
+        pytest -v --cov=minic --cov=minit_tls --cov=mini_jvm --cov=mini_linker \
+               --cov-report=xml --cov-report=term-missing \
+               minic/test/ minit_tls/test/
+               
+    - name: Test MiniC compiler specifically
+      run: |
+        cd minic/test
+        python minic_test.py
+        python example.py
+        
+    - name: Test cryptography components
+      run: |
+        cd minit_tls/test
+        python test_mini_ecdhe.py
+        
+    - name: Upload coverage reports to Codecov
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.11'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  test-javascript:
+    name: Test JavaScript Components
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [16.x, 18.x, 20.x]
+        
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        
+    - name: Test Mini JSVMP
+      run: |
+        cd mini_jsvmp
+        node test_examples.js
+        
+    - name: Test VMP Protection Features
+      run: |
+        cd mini_jsvmp
+        node -e "
+        const fs = require('fs');
+        const vm = fs.readFileSync('mini_jsvmp.js', 'utf8');
+        eval(vm);
+        
+        // Test basic compilation
+        const code = 'function test() { return 42; } print(test());';
+        compileAndRun(code);
+        
+        // Test VMP protection
+        const {code: bytecode, consts, functions} = compile(code);
+        const protectedHex = packToHexHardened(bytecode, consts, functions);
+        runHexHardened(protectedHex, {print: console.log});
+        
+        console.log('✅ All JavaScript VM tests passed');
+        "
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    needs: [test-python, test-javascript]
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y build-essential clang llvm-dev
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+        pip install llvmlite
+        
+    - name: Cross-component integration test
+      run: |
+        # Test that all components can be imported together
+        python -c "
+        import sys
+        sys.path.append('.')
+        
+        # Test imports
+        from minic.driver import build_ir_from_source
+        from minic.runtime import emit_executable, run_executable
+        from minit_tls.network.mini_ecdhe import gen_keypair, ecdhe_shared
+        from mini_jvm.runtime import VM, ClassDef, Method
+        from mini_linker.mini_read_elf import parse_elf_header
+        
+        print('✅ All imports successful')
+        
+        # Test basic functionality
+        c_code = '''
+        int main() {
+            return 42;
+        }
+        '''
+        
+        llvm_ir = build_ir_from_source(c_code, 0)
+        print('✅ C compilation successful')
+        
+        sk, pk = gen_keypair()
+        print('✅ Cryptography functions working')
+        
+        print('✅ Integration tests passed')
+        "
+
+  security-scan:
+    name: Security Scanning
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.11"
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install safety bandit semgrep
+        
+    - name: Run safety check
+      run: |
+        safety check --json || true
+        
+    - name: Run bandit security scan
+      run: |
+        bandit -r . -f json -o bandit-report.json || true
+        
+    - name: Run semgrep scan
+      run: |
+        semgrep --config=auto . --json -o semgrep-report.json || true
+        
+    - name: Upload security scan results
+      uses: actions/upload-artifact@v3
+      with:
+        name: security-reports
+        path: |
+          bandit-report.json
+          semgrep-report.json
